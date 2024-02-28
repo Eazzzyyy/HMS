@@ -5,8 +5,13 @@ from django.contrib import messages
 from django.contrib.auth import authenticate,login
 from .utils import *
 import re
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
-# Create your views here.
+
+
 def Login(request):
     context={ 'username':''
 
@@ -32,6 +37,8 @@ def Login(request):
         else:
             messages.error(request, "Invalid username or password.")
     return render(request, 'authentication/login.html',context)
+
+
 
 def Register(request):
     context = {
@@ -99,7 +106,7 @@ def Register(request):
            
         if len(str(contact)) !=10:
             status=True
-            print("hello")
+          
             messages.error(request, "The contact number should be exactly 10 digits" )
 
         if status:
@@ -119,8 +126,12 @@ def Register(request):
 
     return render(request, 'authentication/register.html',context)
 
+
+
 def Dashboard(request):
     return render(request, 'authentication/dashboard.html')
+
+
 
 def VerifyEmail(request, token):
     try:
@@ -132,6 +143,8 @@ def VerifyEmail(request, token):
         messages.error(request, "Invalid verification token.")
 
     return redirect('login')
+
+
 
 def ForgotPassword(request):
     if request.method == 'POST':
@@ -156,6 +169,8 @@ def ForgotPassword(request):
             return redirect('forgot_password')
 
     return render(request, 'authentication/forgot-password.html')
+
+
 
 def ResetPassword(request, token):
    
@@ -188,3 +203,73 @@ def ResetPassword(request, token):
         return redirect('forgot_password')
 
     return render(request, 'authentication/reset-password.html')
+
+
+
+
+@csrf_exempt
+def auth_receiver(request):
+    """
+    Google calls this URL after the user has signed in with their Google account.
+    """
+    token = request.POST['credential']
+
+    try:
+        user_data = id_token.verify_oauth2_token(
+            token, requests.Request(), '138438340790-6opvfcoffef79m80lr2g0lic3btjvq92.apps.googleusercontent.com'
+        )
+        print(user_data)
+        
+        
+    except ValueError:
+    
+        return HttpResponse(status=403)
+
+    
+    try:
+        user = CustomUser.objects.get(email=user_data['email'])
+        # Log in the user
+        login(request, user)
+
+        # Redirect to dashboard if user exists
+        return redirect('dashboard')
+    except CustomUser.DoesNotExist:
+        
+        user = CustomUser.objects.create_user(
+            username=user_data['email'],  
+            email=user_data['email'],
+            first_name=user_data.get('given_name', ''),
+            last_name=user_data.get('family_name', ''),
+            is_verified=True
+        )
+
+    # Log in the user
+    login(request, user)
+
+    return redirect('askContact')
+
+
+def askContact(request):
+    if request.method == 'POST':
+        contact = request.POST.get('contact_number')
+        status=False
+        if CustomUser.objects.filter(contact_number=contact):    
+          status=True
+          messages.error(request, "The contact number is already in use. Please choose a different contact number.")
+        
+        if len(str(contact)) !=10:
+            status=True
+     
+            messages.error(request, "The contact number should be exactly 10 digits" )
+
+            # send eror message here and dont let other code below it run
+        if status:
+            # If there are errors, render the form again with error messages
+            return render(request, 'authentication/ask_contact.html')
+
+        request.user.contact_number = contact
+        request.user.save()
+        return redirect('dashboard')  
+    
+    return render(request, 'authentication/ask_contact.html')
+
