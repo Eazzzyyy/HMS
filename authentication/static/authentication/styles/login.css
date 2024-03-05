@@ -1,0 +1,120 @@
+.form-container {
+    padding: 50px;
+    display: flex;
+    flex-wrap: wrap;
+
+    justify-content: center;
+}
+
+.image-container {
+
+    height: 100vh;
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+}
+
+.image-container img {
+    object-fit: cover;
+    height: 100vh;
+    width: fit-content;
+}
+
+.form-group {
+    margin-bottom: 10px;
+
+}
+
+.form-control {
+    width: 400px;
+    margin-top: 5px;
+
+}
+
+.Login-label {
+
+    margin-bottom: 20px;
+}
+
+.g_id_signin {
+    margin-top: 20px;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.eye-button {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.eye-icon {
+    font-size: 1.25rem;
+    color: #6c757d;
+}
+
+.forgot-password {
+    margin-left: 295px;
+
+
+}
+
+.btn-primary {
+    width: 400px;
+}
+
+.or-divider {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.or-line {
+    flex: 1;
+    height: 1px;
+    background-color: #ccc;
+}
+
+.or-text {
+    padding: 0 10px;
+    color: #999;
+    font-size: 15px;
+}
+
+.messages {
+    position: absolute;
+    top: 5%;
+
+
+    animation: showAndHide 5s ease-in-out forwards;
+    z-index: 1;
+}
+
+@keyframes showAndHide {
+    0% {
+        opacity: 0;
+        transform: translateY(-25px);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    70% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}

@@ -7,85 +7,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+
+    <!-- Link to boxicons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.1/css/boxicons.min.css">
+
+    <!-- Script for Google Api -->
     <script src="https://accounts.google.com/gsi/client" async></script>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
-    <style>
-        /* Adjust styles as needed */
 
-        .form-container {
-            padding: 50px;
-            display: flex;
-            /* align-items: center; */
-            justify-content: center;
-        }
+    <!---- Page CSS  -->
+    <link rel="stylesheet" href="{% static 'authentication/styles/login.css' %}">
 
-        .image-container {
-
-            height: 100vh;
-            padding-right: 0 !important;
-            padding-left: 0 !important;
-        }
-
-        .image-container img {
-            object-fit: cover;
-            height: 100vh;
-            width: fit-content;
-        }
-
-        .form-group {
-            margin-bottom: 10px;
-
-        }
-
-        .form-control {
-            width: 400px;
-
-        }
-
-        .Login-label {
-
-            margin-bottom: 20px;
-        }
-
-        .g_id_signin {
-            margin-top: 20px;
-        }
-
-        .password-wrapper {
-            position: relative;
-        }
-
-        .eye-button {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            padding: 0;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-        }
-
-        .eye-icon {
-            font-size: 1.25rem;
-            color: #6c757d;
-        }
-    </style>
-
+    <!---- Page JS  -->
+    <script src="{% static 'authentication/scripts/Login&Registration.js' %}"></script>
 
 
 </head>
 
 <body>
     <div class="container-fluid">
+
         <div class="row">
+
             <div class="col-md-6 form-container text-center text-md-start">
 
 
@@ -93,10 +44,12 @@
 
                     {% csrf_token %}
                     {% for message in messages %}
-                    <div class="alert alert-dismissible {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}"
-                        role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <div class="messages" role="alert">
+                        <div class="alert alert-dismissible {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}"
+                            role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     </div>
                     {% endfor %}
 
@@ -109,6 +62,7 @@
                         <input type="text" class="form-control" name="username" id="username" value="{{username}}"
                             required>
                     </div>
+
                     <div class="form-group position-relative">
                         <label for="pass1">Password</label>
                         <div class="password-wrapper">
@@ -117,14 +71,23 @@
                                 <i class="eye-icon bx bx-hide"></i>
                             </button>
                         </div>
-                        <a href="{% url 'forgot_password' %}">Forgot Password?</a>
+
+                        <a class="forgot-password" href="{% url 'forgot_password' %}">
+                            <font size="2">Forgot
+                                Password?</font>
+                        </a>
                     </div>
 
-
-
+                    <br>
 
                     <button type="submit" class="btn btn-primary">Login</button>
 
+                    <h5 class="or-divider">
+
+                        <span class="or-line"></span>
+                        <span class="or-text">Or</span>
+                        <span class="or-line"></span>
+                    </h5>
 
 
                     <div id="g_id_onload"
@@ -137,43 +100,28 @@
                         data-text="continue_with" data-size="large" data-locale="en-US" data-logo_alignment="left">
                     </div>
 
+                    <br>
+
+                    <p>
+                        <center>Don't have an account? <a href="{% url 'register' %}">
+                                <font size="3">Register here</font>
+                            </a></center>
+                    </p>
+
                 </form>
 
 
             </div>
+
             <div class="col-md-6 image-container d-none d-md-block">
                 <!-- Image of hotel -->
-                <img src="{% static 'authentication/images/hotel_img.jpg' %}" alt="Hotel Image" class="img-fluid">
+                <img src="{% static 'authentication/images/hotel_img.jpg' %}" alt="Hotel Image" class="img-fluid"
+                    style="float:right;object-fit: cover;height: 100%;">
             </div>
+
         </div>
+
     </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const eyeButtons = document.querySelectorAll(".eye-button");
-
-            eyeButtons.forEach(eyeButton => {
-                const pwField = eyeButton.parentElement.querySelector(".password");
-
-                // Check the initial state of the password field and update the eye icon accordingly
-                if (pwField.type === "password") {
-                    eyeButton.querySelector(".eye-icon").classList.add("bx-hide");
-                } else {
-                    eyeButton.querySelector(".eye-icon").classList.add("bx-show");
-                }
-
-                eyeButton.addEventListener("click", () => {
-                    if (pwField.type === "password") {
-                        pwField.type = "text";
-                        eyeButton.querySelector(".eye-icon").classList.replace("bx-hide", "bx-show");
-                    } else {
-                        pwField.type = "password";
-                        eyeButton.querySelector(".eye-icon").classList.replace("bx-show", "bx-hide");
-                    }
-                });
-            });
-        });
-    </script>
 
 
 

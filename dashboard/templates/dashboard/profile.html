@@ -1,0 +1,137 @@
+{% load static %}
+
+<!DOCTYPE html>
+<!-- Coding By CodingNepal - codingnepalweb.com -->
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="{% static 'dashboard/styles/dashboard.css' %}">
+
+    <!----===== Iconscout CSS ===== -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+    <title>Profile</title>
+</head>
+
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="{% static 'dashboard/images/logo.png' %}" alt="">
+            </div>
+
+            <span class="logo_name" style=>Urban Escape</span>
+        </div>
+
+        <div class="menu-items">
+            <ul class="nav-links">
+
+                <li><a href="/bookings">
+                        <i class="uil uil-calendar-alt"></i>
+                        <span class="link-name">Bookings</span>
+                    </a></li>
+
+                <li><a href="/payment">
+                        <i class="uil uil-credit-card"></i>
+                        <span class="link-name">Payment</span>
+                    </a></li>
+                <li><a href="/reviews-ratings">
+                        <i class="uil uil-comments"></i>
+                        <span class="link-name">Reviews and Rating</span>
+                    </a></li>
+                <li><a href="/profile">
+                        <i class="uil uil-user-circle" style="color: #0d6efd;"></i>
+                        <span class="link-name" style="color: #0d6efd;">Profile</span>
+                    </a></li>
+            </ul>
+
+            <ul class="logout-mode">
+                <li><a href="#">
+                        <i class="uil uil-signout"></i>
+                        <span class="link-name">Logout</span>
+                    </a></li>
+
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
+
+                    <div class="mode-toggle">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle"></i>
+
+            <div class="search-box">
+                <i class="uil uil-search"></i>
+                <input type="text" placeholder="Search here...">
+            </div>
+
+            <!--<img src="images/profile.jpg" alt="">-->
+        </div>
+
+
+        <div class="dash-content">
+            <div class="edit-profile">
+                <div class="title">
+                    <i class="uil uil-user-circle"></i>
+                    <span class="text">Edit Profile</span>
+                </div>
+
+                <form action="" method="post">
+
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="fname" class="form-label">First Name</label>
+                        <input type="text" name="fname" id="fname" class="form-control" value="{{ user.first_name }}"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lname" class="form-label">Last Name</label>
+                        <input type="text" name="lname" id="lname" class="form-control" value="{{ user.last_name }}"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" name="email" id="email" class="form-control" value="{{ user.email }}"
+                            required>
+                        {% if errors.email %}
+                        <div class="error">{{ errors.email }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact" class="form-label">Contact Number</label>
+                        <input type="tel" name="contact" id="contact" class="form-control" value="{{ user.contact }}"
+                            required>
+                        {% if errors.contact %}
+                        <div class="error">{{ errors.contact }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>
+</body>
+
+</html>

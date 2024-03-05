@@ -1,0 +1,51 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+}
+
+
+.form-wrapper {
+    border: 1px solid #ced4da;
+
+    border-radius: 8px;
+
+    padding: 20px;
+
+}
+
+.form-container {
+    width: 400px;
+}
+
+.messages {
+    position: absolute;
+    top: 5%;
+
+
+    animation: showAndHide 5s ease-in-out forwards;
+    z-index: 1;
+}
+
+@keyframes showAndHide {
+    0% {
+        opacity: 0;
+        transform: translateY(-25px);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    70% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}

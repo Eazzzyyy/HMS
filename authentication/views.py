@@ -30,7 +30,7 @@ def Login(request):
         if user is not None and user.is_verified:  # Check if user is verified
             login(request, user)
             fname = user.first_name
-            return render(request, 'authentication/dashboard.html', {'fname': fname})
+            return render(request, 'dashboard/user-bookings.html', {'fname': fname})
           
         elif user is not None and not user.is_verified:
             messages.error(request, "Your email is not verified yet. Please check your email for verification.")
@@ -40,96 +40,96 @@ def Login(request):
 
 
 
+import re
+
 def Register(request):
     context = {
-                'username': '',
-                'fname': '',
-                'lname': '',
-                'email': '',
-                'contact': '',
-                'pass1': '',
-                'pass2': '',
-            }
+        'username': '',
+        'fname': '',
+        'lname': '',
+        'email': '',
+        'contact': '',
+        'pass1': '',
+        'pass2': '',
+        'errors': {}  # Initialize empty dictionary for error messages
+    }
+
     if request.method == 'POST':
-        username= request.POST['username'] # accesed from the name in the form
-        fname= request.POST['fname']
-        lname= request.POST['lname']
-        email= request.POST['email']
-        contact= request.POST['contact'] 
-        pass1= request.POST['pass1']
-        pass2= request.POST['pass2']
+        username = request.POST['username']
+        fname = request.POST['fname']
+        lname = request.POST['lname']
+        email = request.POST['email']
+        contact = request.POST['contact']
+        pass1 = request.POST['pass1']
+        pass2 = request.POST['pass2']
 
         context = {
-                'username': username,
-                'fname': fname,
-                'lname': lname,
-                'email': email,
-                'contact': contact,
-                'pass1': pass1,
-                'pass2': pass2,
-            }
-        status=False
-        if CustomUser.objects.filter(username=username):
-            status=True
-            messages.error(request, "Username is already in use. Please choose a different username.")
-      
-        if CustomUser.objects.filter(email=email):
-            status=True
-            messages.error(request, "Email address is already in use. Please use a different email.")
-        
-        if len(username) > 15:
-            status=True
-            messages.error(request, "The username cannot be longer than 15 characters.")
+            'username': username,
+            'fname': fname,
+            'lname': lname,
+            'email': email,
+            'contact': contact,
+            'pass1': pass1,
+            'pass2': pass2,
+            'errors': {}  # Reset errors dictionary for each request
+        }
 
-        if pass1!=pass2:
-             status=True
-             messages.error(request, "The passwords don't match.")
+        status = False
+
+        if CustomUser.objects.filter(username=username).exists():
+            context['errors']['username'] = "Username is already in use. Please choose a different username."
+            status = True
+      
+        if CustomUser.objects.filter(email=email).exists():
+            context['errors']['email'] = "Email address is already in use. Please use a different email."
+            status = True
+
+        if len(username) > 15:
+            context['errors']['username'] = "The username cannot be longer than 15 characters."
+            status = True
+
+        if pass1 != pass2:
+            context['errors']['pass1'] = "The passwords don't match."
+            status = True
 
         alphanumeric_pattern = re.compile(r'^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$')
 
-        # Check if username contains only alphanumeric characters
         if not alphanumeric_pattern.match(username):
+            context['errors']['username'] = "The username must be alphanumeric and contain at least 8 characters."
             status = True
-            
-            messages.error(request, "The username must be alphanumeric and contain atleast 8 characters.")
 
-       
-
-        # Check if password contains only alphanumeric characters
         if not alphanumeric_pattern.match(pass1):
+            context['errors']['pass1'] = "The password must be alphanumeric and contain at least 8 characters."
             status = True
-            messages.error(request, "The password must be alphanumeric and contain atleast 8 characters.")
 
-        if CustomUser.objects.filter(contact_number=contact):    
-            status=True
-            messages.error(request, "The contact number is already in use. Please choose a different contact number.")
-           
-        if len(str(contact)) !=10:
-            status=True
-          
-            messages.error(request, "The contact number should be exactly 10 digits" )
+        if CustomUser.objects.filter(contact_number=contact).exists():
+            context['errors']['contact'] = "The contact number is already in use. Please choose a different contact number."
+            status = True
+
+        if len(str(contact)) != 10:
+            context['errors']['contact'] = "The contact number should be exactly 10 digits."
+            status = True
 
         if status:
-          return render(request, 'authentication/register.html',context)
-           
+            return render(request, 'authentication/register.html', context)
+
         email_token = str(uuid.uuid4())
-        my_user=CustomUser.objects.create_user(username,email,pass1)
-        my_user.first_name=fname
-        my_user.last_name=lname
-        my_user.contact_number=contact
+        my_user = CustomUser.objects.create_user(username, email, pass1)
+        my_user.first_name = fname
+        my_user.last_name = lname
+        my_user.contact_number = contact
         my_user.email_token = email_token
         my_user.save()
-        send_email_token(email,email_token)
+
+        send_email_token(email, email_token)
         messages.success(request, "Your account was successfully created. Please check your email for verification.")
         return redirect('login')
-        
 
-    return render(request, 'authentication/register.html',context)
-
+    return render(request, 'authentication/register.html', context)
 
 
-def Dashboard(request):
-    return render(request, 'authentication/dashboard.html')
+
+
 
 
 
@@ -232,7 +232,7 @@ def auth_receiver(request):
         login(request, user)
 
         # Redirect to dashboard if user exists
-        return redirect('dashboard')
+        return redirect('user_bookings')
     except CustomUser.DoesNotExist:
         
         user = CustomUser.objects.create_user(
@@ -269,7 +269,11 @@ def askContact(request):
 
         request.user.contact_number = contact
         request.user.save()
-        return redirect('dashboard')  
+        return redirect('user_dashboard')  
     
     return render(request, 'authentication/ask_contact.html')
+
+
+def content(req):
+    return render(req,'authentication/content.html')
 
