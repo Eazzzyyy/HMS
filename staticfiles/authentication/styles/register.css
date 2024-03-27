@@ -1,0 +1,95 @@
+.form-container {
+    padding: 50px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.image-container {
+
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+}
+
+.image-container img {
+    object-fit: cover;
+    height: 115vh;
+    width: fit-content;
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-control {
+    width: 400px;
+    margin-top: 5px;
+}
+
+.Registration-label {
+    margin-bottom: 20px;
+}
+
+
+
+.password-wrapper {
+    position: relative;
+}
+
+.eye-button {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.eye-icon {
+    font-size: 1.25rem;
+    color: #6c757d;
+}
+
+
+
+.btn-primary {
+    width: 400px;
+}
+
+.messages {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    /* transform: translateX(-50%); */
+    z-index: 1050;
+    /* Adjust this value to ensure it appears above other elements */
+    /* Hide the messages by default */
+    animation: showAndHide 5s ease-in-out forwards;
+}
+
+
+
+@keyframes showAndHide {
+    0% {
+        opacity: 0;
+        transform: translateY(-25px);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    70% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}

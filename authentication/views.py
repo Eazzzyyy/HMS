@@ -128,11 +128,6 @@ def Register(request):
     return render(request, 'authentication/register.html', context)
 
 
-
-
-
-
-
 def VerifyEmail(request, token):
     try:
         user = CustomUser.objects.get(email_token=token)
@@ -162,12 +157,14 @@ def ForgotPassword(request):
 
         
             messages.success(request, "Password reset link has been sent to your email.")
+            print(request.POST.get('hiddencheck'))
+            if request.POST.get('hiddencheck'):
+                return redirect(f'/forgot-password?type=change&username={request.user.username}')
             return redirect('forgot_password')
 
         except CustomUser.DoesNotExist:
             messages.error(request, "User not found.")
             return redirect('forgot_password')
-
     return render(request, 'authentication/forgot-password.html')
 
 
@@ -220,12 +217,10 @@ def auth_receiver(request):
         )
         print(user_data)
         
-        
     except ValueError:
     
         return HttpResponse(status=403)
 
-    
     try:
         user = CustomUser.objects.get(email=user_data['email'])
         # Log in the user

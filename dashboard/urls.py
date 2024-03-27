@@ -9,6 +9,6 @@ urlpatterns = [
     path('bookings/', views.UserBookings, name='user_bookings'),
     path('payment/', views.Payment, name='payment'),
     path('reviews-ratings', views.ReviewRating, name='reviews_rating'),
-    path('profile', views.Profile, name='profile'),
+    path('profile/', views.Profile, name='profile'),
 
 ]

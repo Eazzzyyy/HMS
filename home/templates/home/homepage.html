@@ -1,0 +1,555 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Urban Escape Hotel</title>
+    <style>
+        .availability-form {
+
+            margin-top: -50px;
+            z-index: 2;
+            position: relative;
+        }
+
+
+        @media screen and (max-width:575px) {
+
+            .availability-form {
+
+                margin-top: 0px;
+
+            }
+        }
+    </style>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/solid.css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white px-lg-3 py-lg-2 shadow-sm sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand me-5 fw-bold fs-3" href="#">The Urban Escape Hotel</a>
+            <button class="navbar-toggler shadow-none" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link me-2 active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link me-2" href="#">Rooms</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link me-2" href="#">Facilities</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link me-2" href="#">About us</a>
+                    </li>
+                </ul>
+                <!-- <div class="d-flex" role="search">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Dropdown
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
+                    </li>
+                </div> -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Carousel -->
+
+    <div class="container-fluid">
+        <div class="swiper swiper-container">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+
+                    <img src="{% static 'home/images/image_1.png' %}" class=" w-100 d-block " />
+                </div>
+                <div class="swiper-slide">
+                    <img src="{% static 'home/images/image_2.png' %} " class=" w-100 d-block" />
+                </div>
+                <div class="swiper-slide">
+                    <img src="{% static 'home/images/image_3.png' %} " class=" w-100 d-block" />
+                </div>
+                <div class="swiper-slide">
+                    <img src="{% static 'home/images/image_4.png' %} " class=" w-100 d-block" />
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Availability form -->
+    <div class="container availability-form" style="padding: 0;">
+        <div class="row"></div>
+        <div class="col-lg-12 bg-white shadow p-4 rounded">
+            <h4 class="mb-4">Check Room Availability</h4>
+            <form>
+                <div class="row align-items-end">
+                    <div class="col-lg-3 mb-3">
+                        <label for="form-label" style="font-weight: 500;">Check-In</label>
+                        <input type="date" class="form-control shadow-none">
+                    </div>
+                    <div class="col-lg-3 mb-3">
+                        <label for="form-label" style="font-weight: 500;">Check-Out</label>
+                        <input type="date" class="form-control shadow-none">
+                    </div>
+                    <div class="col-lg-3 mb-3">
+                        <label for="form-label" style="font-weight: 500;">Adult</label>
+                        <select class="form-select shadow-none">
+                            <option selected>0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2 mb-3">
+                        <label for="form-label" style="font-weight: 500;">Children</label>
+                        <select class="form-select shadow-none">
+                            <option selected>0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-1 mb-lg-3 mt-2">
+                        <button type="submit" class="btn btn-primary text-white shadow-none">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Room cards -->
+    <h2 class="mt-5 pt-4 mb-4 text-center fw-bold">Our Rooms</h2>
+    <div class="container">
+        <div class="row">
+
+            {% for room in rooms %}
+
+            <div class="col-lg-4 col-md-6 my-3">
+                <div class="card border-0 shadow" style="max-width: 350px; margin: auto;">
+                    <img class="card-img-top" style="height:250px;object-fit: cover;" src="{{ room.image.url }}"
+                        alt="{{room.room_name}}">
+                    <div class="card-body">
+                        <h5>{{room.room_name}}</h5>
+                        <h6 class="mb-4">NPR {{room.price}}</h6>
+                        <div class="features mb-4">
+                            <h6 class="mb-1">Features</h6>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                2 Rooms
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                2 Bathroom
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                1 Balcony
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                3 Sofa
+                            </span>
+                        </div>
+                        <div class="facilities mb-4">
+                            <h6 class="mb-1">Facilities</h6>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                Wifi
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                Television
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                AC
+                            </span>
+
+                        </div>
+                        <div class="rating mb-4">
+                            <h6 class="mb-1">Rating</h6>
+                            <span class="badge rounded-pill bg-light">
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-start mb-2">
+                            <a href=/{{room.slug}} class="btn btn-sm text-white btn-primary shadow-none "
+                                style="margin-right: 10px;">Book Now</a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- <div class="col-lg-4 col-md-6 my-3">
+                <div class="card border-0 shadow" style="max-width: 350px; margin: auto;">
+                    <img class="card-img-top" src="{% static 'home/images/executive.jpg' %}"
+                        style="height:250px;object-fit: cover;" alt="executive-room">
+                    <div class="card-body">
+                        <h5>Deluxe Room</h5>
+                        <h6 class="mb-4">NPR 7,000</h6>
+                        <div class="features mb-4">
+                            <h6 class="mb-1">Features</h6>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                2 Rooms
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                1 Bathroom
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                1 Balcony
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                2 Sofa
+                            </span>
+                        </div>
+                        <div class="facilities mb-4">
+                            <h6 class="mb-1">Facilities</h6>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                Wifi
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                Television
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                AC
+                            </span>
+
+                        </div>
+                        <div class="rating mb-4">
+                            <h6 class="mb-1">Rating</h6>
+                            <span class="badge rounded-pill bg-light">
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-start mb-2">
+                            <a href="#" class="btn btn-sm text-white btn-primary shadow-none "
+                                style="margin-right: 10px;">Book Now</a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 my-3">
+                <div class="card border-0 shadow" style="max-width: 350px; margin: auto;">
+                    <img class="card-img-top" src="{% static 'home/images/executive.jpg' %}"
+                        style="height:250px;object-fit: cover;" alt="executive-room">
+                    <div class="card-body">
+                        <h5>Economy Room</h5>
+                        <h6 class="mb-4">NPR 3,000</h6>
+                        <div class="features mb-4">
+                            <h6 class="mb-1">Features</h6>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                1 Rooms
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                1 Bathroom
+                            </span>
+
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                1 Sofa
+                            </span>
+                        </div>
+                        <div class="facilities mb-4">
+                            <h6 class="mb-1">Facilities</h6>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                Wifi
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                Television
+                            </span>
+                            <span class="badge rounded-pill bg-light text-dark text-wrap ">
+                                AC
+                            </span>
+
+                        </div>
+                        <div class="rating mb-4">
+                            <h6 class="mb-1">Rating</h6>
+                            <span class="badge rounded-pill bg-light">
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                                <i class="uis uis-star text-warning"></i>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-start mb-2">
+                            <a href="#" class="btn btn-sm text-white btn-primary shadow-none "
+                                style="margin-right: 10px;">Book Now</a>
+
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+    <div class="col-lg-12 text-center mt-5">
+
+    </div>
+    </div>
+    </div>
+
+    <!-- Facilities -->
+    <h2 class="mt-5 pt-4 mb-4 text-center fw-bold">Facilities</h2>
+    <div class="container">
+        <div class="row justify-content-evenly px-lg-0 px-md-0 px-5">
+            <div class="col-lg-2 col-md-2 text-center bg-white rounded shadow py-4 my-3 ">
+                <i class="uis uis-star text-warning " style="font-size: 80px;"></i>
+                <h5 class="mt-3">Wifi</h5>
+
+            </div>
+            <div class="col-lg-2 col-md-2 text-center bg-white rounded shadow py-4 my-3 ">
+                <i class="uis uis-star text-warning " style="font-size: 80px;"></i>
+                <h5 class="mt-3">Wifi</h5>
+
+            </div>
+            <div class="col-lg-2 col-md-2 text-center bg-white rounded shadow py-4 my-3 ">
+                <i class="uis uis-star text-warning " style="font-size: 80px;"></i>
+                <h5 class="mt-3">Wifi</h5>
+
+            </div>
+            <div class="col-lg-2 col-md-2 text-center bg-white rounded shadow py-4 my-3 ">
+                <i class="uis uis-star text-warning " style="font-size: 80px;"></i>
+                <h5 class="mt-3">Wifi</h5>
+
+            </div>
+            <div class="col-lg-12 text-center mt-5">
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews -->
+    <h2 class="mt-5 pt-4 mb-4 text-center fw-bold">Reviews</h2>
+
+    <div class="container mt-5">
+        <div class="swiper swiper-reviews ">
+            <div class="swiper-wrapper mb-5">
+                <div class="swiper-slide bg-white rounded shadow p-4 border border-lightgray">
+                    <div class="profile d-flex align-items-center mb-3">
+                        <i class="uis uis-star text-warning " style="font-size: 30px;"></i>
+                        <h6 class="m-0 ms-2">User 1</h6>
+                    </div>
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur molestias, accusantium
+                        culpa aliquid eveniet obcaecati. Eaque molestiae fugiat eum eos?</p>
+                    <div class="rating">
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+
+                    </div>
+                </div>
+                <div class="swiper-slide bg-white rounded shadow p-4 border border-lightgray">
+                    <div class="profile d-flex align-items-center mb-3">
+                        <i class="uis uis-star text-warning " style="font-size: 30px;"></i>
+                        <h6 class="m-0 ms-2">User 1</h6>
+                    </div>
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur molestias, accusantium
+                        culpa aliquid eveniet obcaecati. Eaque molestiae fugiat eum eos?</p>
+                    <div class="rating">
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+
+                    </div>
+                </div>
+                <div class="swiper-slide bg-white rounded shadow p-4 border border-lightgray">
+                    <div class="profile d-flex align-items-center mb-3">
+                        <i class="uis uis-star text-warning " style="font-size: 30px;"></i>
+                        <h6 class="m-0 ms-2">User 1</h6>
+                    </div>
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur molestias, accusantium
+                        culpa aliquid eveniet obcaecati. Eaque molestiae fugiat eum eos?</p>
+                    <div class="rating">
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+                        <i class="uis uis-star text-warning"></i>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+
+    <!-- About us -->
+    <h2 class="mt-5 pt-4 mb-4 text-center fw-bold">About us</h2>
+
+    <div class="container">
+        <div class="row">
+
+            <div class="col-lg-8 col-md-8 p-4 mb-lg-0 mb-3 bg-white rounded">
+                <iframe class="w-100 rounded" height="320px"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d56516.31397712412!2d85.3261328!3d27.708960349999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb198a307baabf%3A0xb5137c1bf18db1ea!2sKathmandu%2044600!5e0!3m2!1sen!2snp!4v1710707908341!5m2!1sen!2snp"
+                    loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <div class="col-lg-4 col-md-4">
+                <div class="bg-white p-4 rounded mb-4">
+                    <h5>Contact us</h5>
+                    <a href="tel: +9779863211500" class="d-inline-block mb-2 text-decoration-none text-dark">
+                        <i class="bi bi-telephone-fill"></i> +9779863211500
+                    </a>
+                    <br>
+                    <a href="tel: +9779863211511" class="d-inline-block  text-decoration-none text-dark">
+                        <i class="bi bi-telephone-fill"></i> +9779863211500
+                    </a>
+
+
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <div class="bg-white p-4 rounded mb-4">
+                        <h5>Follow us</h5>
+                        <a href="#" class="d-inline-block mb-3 ">
+                            <span class="badge bg-light text-dark fs-6 p-2"> <i
+                                    class="bi bi-instagram me-1"></i>Instagram</span>
+                        </a>
+                        <br>
+                        <a href="#" class="d-inline-block mb-3 ">
+                            <span class="badge bg-light text-dark fs-6 p-2"> <i
+                                    class="bi bi-facebook me-1"></i>Facebook</span>
+                        </a>
+                        <br>
+                        <a href="#" class="d-inline-block  ">
+                            <span class="badge bg-light text-dark fs-6 p-2"> <i
+                                    class="bi bi-twitter me-1"></i>Twitter</span>
+                        </a>
+
+
+
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+
+
+    <div class="container-fluid bg-white border border-lightgray shadow mt-5">
+        <div class="row">
+            <div class="col-lg-4 p-4">
+                <h5 class="fw-bold fs-3 mb-2">The Urban Escape Hotel</h5>
+                <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem, maxime? Ipsam expedita
+                    debitis officia aliquam repellat reiciendis et temporibus obcaecati perspiciatis distinctio.
+                    Saepe
+                    ratione atque a placeat corrupti voluptate id!</p>
+            </div>
+            <div class="col-lg-4 p-4">
+                <h6 class="mb-3 fw-bold">Links</h6>
+                <a href="#" class="d-inline-block mb-3 text-dark text-decoration-none">Home</a><br>
+                <a href="#" class="d-inline-block mb-3 text-dark text-decoration-none">Rooms</a><br>
+                <a href="#" class="d-inline-block mb-3 text-dark text-decoration-none">Facilities</a><br>
+                <a href="#" class="d-inline-block mb-3 text-dark text-decoration-none">Contact us</a><br>
+
+            </div>
+            <div class="col-lg-4 p-4">
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <script>
+        console.log(window.innerWidth)
+        console.log(window.innerHeight)
+        var swiper = new Swiper(".swiper-container", {
+            spaceBetween: 30,
+            effect: "fade",
+            loop: true,
+            autoplay: {
+                delay: 3500,
+                disableOnInteraction: false,
+            }
+
+
+        });
+        var swiper = new Swiper(".swiper-reviews", {
+            effect: "coverflow",
+            grabCursor: true,
+            centeredSlides: true,
+            slidesPerView: "auto",
+            slidesPerView: "3",
+
+            coverflowEffect: {
+                rotate: 50,
+                stretch: 0,
+                depth: 100,
+                modifier: 1,
+                slideShadows: false,
+            },
+            pagination: {
+                el: ".swiper-pagination",
+            },
+            breakpoints: {
+                320: {
+                    slidesPerView: 1,
+                },
+                640: {
+                    slidesPerView: 1,
+                },
+                768: {
+                    slidesPerView: 2,
+                },
+                1024: {
+                    slidesPerView: 3,
+                },
+            }
+        });
+    </script>
+</body>
+
+</html>
