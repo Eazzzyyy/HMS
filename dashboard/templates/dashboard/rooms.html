@@ -25,7 +25,7 @@
     <!----===== Iconscout CSS ===== -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
-    <title>Dashboard</title>
+    <title>Rooms</title>
 </head>
 
 <body>
@@ -41,22 +41,22 @@
         <div class="menu-items" style="margin-left: -30px;">
             <ul class="nav-links">
 
-                <li><a href="/bookings">
-                        <i class="uil uil-calendar-alt" style="color: #0d6efd;"></i>
-                        <span class="link-name" style="color: #0d6efd;">Bookings</span>
+                <li><a href="/admin-dashboard">
+                        <i class="uil uil-calendar-alt"></i>
+                        <span class="link-name">Dashboard</span>
                     </a></li>
 
-                <li><a href="/payment">
+                <li><a href="/staffs">
                         <i class="uil uil-credit-card"></i>
-                        <span class="link-name">Payment</span>
+                        <span class="link-name">Staffs</span>
                     </a></li>
-                <li><a href="/reviews-ratings">
-                        <i class="uil uil-comments"></i>
-                        <span class="link-name">Reviews and Rating</span>
+                <li><a href="/rooms">
+                        <i class="uil uil-comments" style="color: #0d6efd;"></i>
+                        <span class="link-name" style="color: #0d6efd;">Rooms</span>
                     </a></li>
                 <li><a href="/profile">
                         <i class="uil uil-user-circle"></i>
-                        <span class="link-name">Profile</span>
+                        <span class="link-name">Reviews and Ratings</span>
                     </a></li>
             </ul>
 
@@ -93,34 +93,18 @@
             <div class="overview">
                 <div class="title">
                     <i class="uil uil-tachometer-fast-alt"></i>
-                    <span class="text">Dashboard</span>
+                    <span class="text">Rooms</span>
                 </div>
 
-                <div class="boxes">
-                    <div class="box box1">
-                        <i class="uil uil-thumbs-up"></i>
-                        <span class="text">Total Likes</span>
-                        <span class="number">50,120</span>
-                    </div>
-                    <div class="box box2">
-                        <i class="uil uil-comments"></i>
-                        <span class="text">Comments</span>
-                        <span class="number">20,120</span>
-                    </div>
-                    <div class="box box3">
-                        <i class="uil uil-share"></i>
-                        <span class="text">Total Share</span>
-                        <span class="number">10,120</span>
-                    </div>
+                <div class="">
+                    <span><a href="/create-room">Create Room</a></span>
+                </div>
+                <div class="activity">
+
+
+
                 </div>
             </div>
-
-            <div class="activity">
-
-
-
-            </div>
-        </div>
     </section>
 
     <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>

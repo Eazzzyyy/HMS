@@ -12,6 +12,10 @@ from google.auth.transport import requests
 
 
 
+
+
+
+
 def Login(request):
     context={ 'username':''
 
@@ -269,6 +273,12 @@ def askContact(request):
     return render(request, 'authentication/ask_contact.html')
 
 
-def content(req):
-    return render(req,'authentication/content.html')
+
+
+
+
+
+
+
+
 

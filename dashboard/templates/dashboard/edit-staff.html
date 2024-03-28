@@ -1,0 +1,167 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="{% static 'dashboard/styles/dashboard.css' %}">
+
+    <!----===== Iconscout CSS ===== -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+    <title>Edit Staff</title>
+</head>
+
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="{% static 'dashboard/images/logo.png' %}" alt="">
+            </div>
+
+            <span class="logo_name" style=>Urban Escape</span>
+        </div>
+
+        <div class="menu-items" style="margin-left: -30px;">
+            <ul class="nav-links">
+
+                <li><a href="/admin-dashboard">
+                        <i class="uil uil-calendar-alt"></i>
+                        <span class="link-name">Dashboard</span>
+                    </a></li>
+
+                <li><a href="/staffs">
+                        <i class="uil uil-credit-card" style="color: #0d6efd;"></i>
+                        <span class="link-name" style="color: #0d6efd;">Staffs</span>
+                    </a></li>
+                <li><a href="/reviews-ratings">
+                        <i class="uil uil-comments"></i>
+                        <span class="link-name">Rooms</span>
+                    </a></li>
+                <li><a href="/profile">
+                        <i class="uil uil-user-circle"></i>
+                        <span class="link-name">Reviews and Ratings</span>
+                    </a></li>
+            </ul>
+
+            <ul class="logout-mode">
+                <li><a href="#">
+                        <i class="uil uil-signout"></i>
+                        <span class="link-name">Logout</span>
+                    </a></li>
+
+                <li class="mode">
+
+
+                    <div class="mode-toggle">
+
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle"></i>
+
+            <div class="search-box">
+                <i class="uil uil-search"></i>
+                <input type="text" placeholder="Search here...">
+            </div>
+
+            <!--<img src="images/profile.jpg" alt="">-->
+        </div>
+
+        <div class="dash-content">
+            <div class="overview">
+                <div class="title">
+                    <i class="uil uil-tachometer-fast-alt"></i>
+                    <span class="text">Edit Staff</span>
+                </div>
+
+                <form action="" method="post">
+
+                    {% csrf_token %}
+                    {% for message in messages %}
+                    <div class="messages" role="alert">
+                        <div class="alert alert-dismissible {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}"
+                            role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+
+
+                    <div class="form-group">
+                        <label for="fname" class="form-label">First Name</label>
+                        <input type="text" name="fname" id="fname" class="form-control"
+                            value="{{staff_member.first_name}}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lname" class="form-label">Last Name</label>
+                        <input type="text" name="lname" id="lname" class="form-control"
+                            value="{{staff_member.last_name}}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" name="username" id="username" class="form-control"
+                            value="{{staff_member.username}}" required>
+                        {% if errors.username %}
+                        <div class="error" style="width: 400px;font-size: 0.8rem;margin-top: 5px;color: red ;">
+                            {{ errors.username }}</div>
+                        {% endif %}
+                    </div>
+
+
+
+
+
+
+
+                    <div class="form-group">
+                        <label for="contact" class="form-label">Contact Number</label>
+                        <input type="tel" name="contact" id="contact" class="form-control"
+                            value="{{staff_member.contact_number}}" required>
+
+                        {% if errors.contact %}
+                        <div class="error" style="width: 400px;font-size: 0.8rem;margin-top: 5px;color: red ;">
+                            {{ errors.contact }}</div>
+                        {% endif %}
+                    </div>
+                    <br>
+                    <button type="submit" class="btn btn-primary">Save</button>
+
+                </form>
+                <div class="activity">
+
+
+
+                </div>
+            </div>
+    </section>
+
+    <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>
+</body>
+
+</html>
