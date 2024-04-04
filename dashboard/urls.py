@@ -13,9 +13,12 @@ urlpatterns = [
     path('admin-dashboard/', views.AdminDashboard, name='admin-dashboard'),
     path('staffs/', views.Staffs, name='staffs'),
     path('create-staff/', views.CreateStaff, name='create-staff'),
+    path('edit-staff/<id>/', views.EditStaff, name='edit-staff'),
+    path('delete-staff/<id>/', views.DeleteStaff, name='delete-staff'),
     path('rooms/', views.Rooms, name='rooms'),
     path('create-room/', views.CreateRoom, name='create-room'),
-    path('edit-staff/<id>', views.EditStaff, name='edit-staff'),
-    path('delete-staff/<id>/', views.delete_user, name='delete-staff'),
-    # path('delete-staff/', views.DeleteStaff, name='delete-staff'),
+    path('edit-room/<id>', views.EditRoom, name='edit-room'),
+    path('admin-reviews-ratings/', views.admin_reviews_ratings, name='admin-reviews-ratings'),
+    path('delete-room/<id>/', views.DeleteRoom, name='delete-room'),
+    path('book/<id>/', views.BookRoom, name='book-room')
 ]

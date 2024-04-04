@@ -26,6 +26,57 @@
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
     <title>Edit Staff</title>
+
+    <style>
+        .form-control {
+            width: 400px;
+            margin-top: 5px;
+
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+
+        }
+
+        .messages {
+            position: absolute;
+            top: 5%;
+            left: 45%;
+
+
+            animation: showAndHide 5s ease-in-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes showAndHide {
+            0% {
+                opacity: 0;
+                transform: translateY(-25px);
+            }
+
+            30% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            70% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+
+        .form-control[readonly] {
+            background-color: #e9ecef;
+
+        }
+    </style>
 </head>
 
 <body>
@@ -50,11 +101,11 @@
                         <i class="uil uil-credit-card" style="color: #0d6efd;"></i>
                         <span class="link-name" style="color: #0d6efd;">Staffs</span>
                     </a></li>
-                <li><a href="/reviews-ratings">
+                <li><a href="/rooms">
                         <i class="uil uil-comments"></i>
                         <span class="link-name">Rooms</span>
                     </a></li>
-                <li><a href="/profile">
+                <li><a href="/admin-reviews-ratings">
                         <i class="uil uil-user-circle"></i>
                         <span class="link-name">Reviews and Ratings</span>
                     </a></li>
@@ -88,7 +139,7 @@
 
             <!--<img src="images/profile.jpg" alt="">-->
         </div>
-
+        <div id="alert_message"></div>
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
@@ -96,72 +147,139 @@
                     <span class="text">Edit Staff</span>
                 </div>
 
-                <form action="" method="post">
+
+
+                <div class="messages" role="alert"></div>
+
+                <form id="editStaffForm">
 
                     {% csrf_token %}
-                    {% for message in messages %}
-                    <div class="messages" role="alert">
-                        <div class="alert alert-dismissible {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}"
-                            role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </div>
-                    {% endfor %}
-
 
 
                     <div class="form-group">
                         <label for="fname" class="form-label">First Name</label>
-                        <input type="text" name="fname" id="fname" class="form-control"
+                        <input type="text" name="first_name" id="fname" class="form-control"
                             value="{{staff_member.first_name}}" required>
                     </div>
 
                     <div class="form-group">
                         <label for="lname" class="form-label">Last Name</label>
-                        <input type="text" name="lname" id="lname" class="form-control"
+                        <input type="text" name="last_name" id="lname" class="form-control"
                             value="{{staff_member.last_name}}" required>
                     </div>
 
                     <div class="form-group">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" name="username" id="username" class="form-control"
-                            value="{{staff_member.username}}" required>
-                        {% if errors.username %}
-                        <div class="error" style="width: 400px;font-size: 0.8rem;margin-top: 5px;color: red ;">
-                            {{ errors.username }}</div>
-                        {% endif %}
+                            value="{{staff_member.username}}" readonly>
+
                     </div>
-
-
-
-
-
 
 
                     <div class="form-group">
                         <label for="contact" class="form-label">Contact Number</label>
                         <input type="tel" name="contact" id="contact" class="form-control"
                             value="{{staff_member.contact_number}}" required>
+                        <div id="errored" class="error"
+                            style="width: 400px;font-size: 0.8rem;margin-top: 5px;color: red ;">
 
-                        {% if errors.contact %}
-                        <div class="error" style="width: 400px;font-size: 0.8rem;margin-top: 5px;color: red ;">
-                            {{ errors.contact }}</div>
-                        {% endif %}
+
+                        </div>
                     </div>
-                    <br>
-                    <button type="submit" class="btn btn-primary">Save</button>
 
+                    <div class="buttons" style="display: flex;">
+                        <button id="saveBtn" class="btn btn-primary">Save</button>
+                        <a style="margin-left: 7px; margin-top: 5px;" href="/staffs">Back to List</a>
+                    </div>
                 </form>
-                <div class="activity">
 
-
-
-                </div>
             </div>
     </section>
-
+    <script>
+        console.log('Hello')
+    </script>
     <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>
+
+    <script>
+        document.getElementById("saveBtn").addEventListener("click", (e) => {
+            // Gather data from form fields
+            e.preventDefault()
+            const firstName = document.getElementById("fname").value;
+            const lastName = document.getElementById("lname").value;
+            const contact = document.getElementById("contact").value;
+            const username = document.getElementById("username").value; // Get username value
+
+            // Check if contact number is not provided
+            if (!contact) {
+                return 0;
+            }
+
+            // Create data object to send in POST request
+            const data = {
+                first_name: firstName,
+                last_name: lastName,
+                contact: contact,
+                username: username // Include username in the data
+            };
+            console.log(data)
+            // Send POST request to server
+            fetch('/edit-staff/{{ staff_member.id }}/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Include CSRF token for security
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // If response is successful, parse JSON response
+                        return response.json();
+                    } else {
+                        // If response is not successful, log error
+                        console.error('Error updating profile');
+                    }
+                })
+                .then(jsonResponse => {
+                    console.log(jsonResponse);
+                    // Check if there are errors in the response (e.g., invalid contact number)
+                    if (jsonResponse.contact) {
+                        // Display error message
+                        document.getElementById("errored").innerHTML = jsonResponse.contact;
+                    } else {
+                        document.getElementById("errored").innerHTML = "";
+
+                        // Create success message element
+                        const successMessage = document.createElement('div');
+                        successMessage.classList.add('messages', 'alert', 'alert-dismissible', 'alert-success');
+                        successMessage.setAttribute('role', 'alert');
+                        // Populate success message content
+                        successMessage.innerHTML = `
+                <div>
+                    ${jsonResponse.success}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+                        // Append success message to alert_message element
+                        document.getElementById("alert_message").appendChild(successMessage);
+
+                        // Redirect user to profile page after a delay
+                        setTimeout(() => {
+                            window.location.href = '/staffs/';
+                        }, 1300);
+                    }
+
+                })
+                .catch(error => {
+                    // Log error if fetch fails
+                    console.error('Error updating profile:', error);
+                });
+        });
+
+    </script>
+
+
 </body>
 
 </html>

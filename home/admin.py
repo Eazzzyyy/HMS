@@ -5,7 +5,7 @@ from .models import Room
 
 class RoomAdmin(admin.ModelAdmin):
    
-    list_display = ('room_name', 'price', 'image')
+    list_display = ('room_name', 'price', 'image','availability')
 
 
 admin.site.register(Room, RoomAdmin)

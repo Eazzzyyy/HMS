@@ -14,7 +14,7 @@
 .image-container img {
     object-fit: cover;
     height: 115vh;
-    width: fit-content;
+    width: -webkit-fill-available;
 }
 
 .form-group {

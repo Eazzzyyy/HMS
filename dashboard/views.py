@@ -6,6 +6,9 @@ from django.contrib import messages
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from dashboard.models import Booking
+from home . models import Room
+from django.utils import timezone
 @login_required
 def UserBookings(request):
      return render(request, 'dashboard/user-bookings.html')
@@ -22,10 +25,10 @@ def ReviewRating(request):
 
 
 
-
-
 @login_required
 def Profile(request):
+    user_profile = CustomUser.objects.get(username=request.user.username)
+
     if request.method == 'POST':
         # Extract JSON data from request body
         data = json.loads(request.body)
@@ -35,36 +38,32 @@ def Profile(request):
         last_name = data.get('last_name')
         contact_number = data.get('contact_number')
 
-        # Get the current user object
-        user = CustomUser.objects.get(username=request.user.username)
-        
         # Validation
         errors = {}
 
         if len(str(contact_number)) != 10:
             errors['contact'] = "The contact number should be exactly 10 digits."
 
-        if CustomUser.objects.exclude(username=user.username).filter(contact_number=contact_number).exists():
+        if CustomUser.objects.exclude(username=user_profile.username).filter(contact_number=contact_number).exists():
             errors['contact'] = "The contact number is already in use. Please choose a different contact number."
         
         if 'contact' in errors:
-        
-            # If there are errors, render the profile page with errors displayed
+            # If there are errors, return the errors as JSON response
             return JsonResponse(errors)
         else:
-            print("valid")
             # Update user information
-            user.first_name = first_name
-            user.last_name = last_name
-            user.contact_number = contact_number
-            # Save the updated user object
-            user.save()
-          
-            errors['success']="Saved successfully!"
-            return JsonResponse(errors)
+            user_profile.first_name = first_name
+            user_profile.last_name = last_name
+            user_profile.contact_number = contact_number
 
-    # If request method is not POST or there are no errors, render the profile page
-    return render(request, 'dashboard/profile.html', {'username': request.user.username, 'errors': {}})
+            # Save the updated user object
+            user_profile.save()
+          
+            # Return success message as JSON response
+            return JsonResponse({'success': "Saved successfully!"})
+
+    # Pass the profile data to the template
+    return render(request, 'dashboard/profile.html', {'user_profile': user_profile})
 
 
 def AdminDashboard(request):
@@ -154,40 +153,54 @@ def CreateStaff(request):
             'status':True
         }
         messages.success(request, "Created Successfully")
-        return render(request, 'dashboard/create-staff.html',context)
+        return redirect('staffs')
 
-    return render(request, 'dashboard/create-staff.html')
+    return render(request, 'dashboard/create-staff.html',context)
 
-def Rooms(request):
-    return render(request, 'dashboard/rooms.html')
 
-def CreateRoom(request):
-    return render(request, 'dashboard/create-room.html')
 
+@csrf_exempt
 def EditStaff(request, id):
-    
-    if request.method == "POST":
-        staff_member = CustomUser.objects.get(id=id)
-        print(id)
-        staff_member.first_name = request.POST.get('fname')
-        staff_member.last_name = request.POST.get('lname')
-        staff_member.username = request.POST.get('username')
-        staff_member.contact_number = request.POST.get('contact')
-        staff_member.save()
-        staff_member = CustomUser.objects.get(id=id)
-        context = {'staff_member': staff_member}
-        # Redirect to a success page or another page after updating the staff member
+    staff_member = CustomUser.objects.get(pk=id)
 
-        return render(request, 'dashboard/edit-staff.html', context)  # Replace 'success_page' with the name of your success page URL
+    if request.method == "POST":
+        # Retrieve JSON data from the request body
+        data = json.loads(request.body)
+
+        new_contact = data.get('contact')
+        errors = {}
+
+        # Validate contact number
+        if new_contact and new_contact != staff_member.contact_number:
+            if CustomUser.objects.filter(contact_number=new_contact).exists():
+                errors['contact'] = "The contact number is already in use. Please choose a different contact number."
+            elif len(str(new_contact)) != 10:
+                errors['contact'] = "The contact number should be exactly 10 digits."
+
+        # Check for validation errors
+        if errors:
+            return JsonResponse(errors)
+
+        # Update staff member details if no errors
+        staff_member.first_name = data.get('first_name')
+        staff_member.last_name = data.get('last_name')
+        staff_member.contact_number = new_contact
+        staff_member.save()
+
+        # Return success message as JSON response
+        return JsonResponse({'success': "Saved successfully!"})
+
     else:
-        staff_member = CustomUser.objects.get(id=id)
         context = {'staff_member': staff_member}
         return render(request, 'dashboard/edit-staff.html', context)
+
+
+
     
     
-@csrf_exempt  # You may want to handle CSRF protection differently based on your application requirements
-def delete_user(request, id):
-    print("lol")
+@csrf_exempt  
+def DeleteStaff(request,id):
+    
     try:
         user = CustomUser.objects.get(id=id)
         user.delete()
@@ -196,3 +209,101 @@ def delete_user(request, id):
         return JsonResponse({'error': 'User not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+def admin_reviews_ratings(request):
+    return render(request,'dashboard/admin-reviews-ratings.html')
+
+def Rooms(request):
+    rooms = Room.objects.all()
+    context = {
+        'rooms': rooms
+    }
+    return render(request, 'dashboard/rooms.html',context)
+
+
+def CreateRoom(request):
+    if request.method == 'POST':
+        room_name = request.POST.get('room_name')
+        availability=request.POST.get('availability')
+        price = request.POST.get('price')
+        image = request.FILES.get('image')
+        features_string = request.POST.get('features-string')
+        print(features_string)
+
+        # Save Room object with extracted data
+        room = Room(room_name=room_name, availability=availability,price=price, image=image, features=features_string, slug='')
+        room.save()
+       
+
+        return render(request, 'dashboard/create-room.html') 
+    else:
+        return render(request, 'dashboard/create-room.html')
+    
+
+
+    
+def EditRoom(request, id):
+    if request.method == "POST":
+        room = Room.objects.get(id=id)
+        room.room_name = request.POST.get('room_name')
+        room.availability=request.POST.get('availability')
+        room.price = request.POST.get('price')
+        room.features = request.POST.get('features-string')
+        
+        # Check if a new image was uploaded
+        new_image = request.FILES.get('new_image')
+        if new_image:
+            room.image = new_image
+
+        room.save()
+        messages.success(request,'Saved successfully!')
+        return redirect('rooms')  # Redirect to the rooms page
+    else:
+        # Retrieve room and render edit page
+        room = Room.objects.get(id=id)
+        features_string = room.features
+        features_list = features_string.split(', ')
+        features = [feature.split(' ')[1] for feature in features_list]
+        counts = [int(feature.split(' ')[0]) if feature.split(' ')[0] else 0 for feature in features_list]
+        features_counts = zip(features, counts)
+
+        context = {
+            'room': room,
+            'features_counts': features_counts,
+        }
+        return render(request, 'dashboard/edit-room.html', context)
+
+
+    
+
+@csrf_exempt  
+def DeleteRoom(request,id):
+    
+    try:
+        user = Room.objects.get(id=id)
+        user.delete()
+        return JsonResponse({'message': 'User deleted successfully'}, status=200)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+def BookRoom(request, id):
+    # Retrieve the room object using the slug
+    room = Room.objects.get(id=id)
+    print(request.user.id)
+    if request.method == 'POST':
+        # Retrieve room ID from the POST request
+        room_id = id
+
+        # Save the booking data to the Booking model
+        booking = Booking.objects.create(user=request.user,room_id=int(room_id),payment_status=False)
+
+        # Return a JSON response indicating success
+        return JsonResponse({'message': 'Booking successful'})
+
+    # Return an error response if the request method is not POST
+    
+
+    return render(request, 'dashboard/book-room.html', {'room': room})

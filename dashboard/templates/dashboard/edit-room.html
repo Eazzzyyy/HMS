@@ -1,0 +1,319 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="{% static 'dashboard/styles/dashboard.css' %}">
+
+    <!----===== Iconscout CSS ===== -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+    <title>Edit Room</title>
+
+    <style>
+        .form-control {
+            width: 400px;
+            margin-top: 5px;
+
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+
+        }
+
+        .messages {
+            position: absolute;
+            top: 5%;
+            left: 45%;
+
+
+            animation: showAndHide 5s ease-in-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes showAndHide {
+            0% {
+                opacity: 0;
+                transform: translateY(-25px);
+            }
+
+            30% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            70% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="{% static 'dashboard/images/logo.png' %}" alt="">
+            </div>
+
+            <span class="logo_name" style=>Urban Escape</span>
+        </div>
+
+        <div class="menu-items" style="margin-left: -30px;">
+            <ul class="nav-links">
+
+                <li><a href="/admin-dashboard">
+                        <i class="uil uil-tachometer-fast-alt"></i>
+                        <span class="link-name">Dashboard</span>
+                    </a></li>
+
+                <li><a href="/staffs">
+                        <i class="uil uil-users-alt"></i>
+                        <span class="link-name">Staffs</span>
+                    </a></li>
+                <li><a href="/rooms">
+                        <i class="uil uil-bed" style="color: #0d6efd;"></i>
+                        <span class="link-name" style="color: #0d6efd;">Rooms</span>
+                    </a></li>
+                <li><a href="/admin-reviews-ratings">
+                        <i class="uil uil-comments"></i>
+                        <span class="link-name">Reviews and Ratings</span>
+                    </a></li>
+            </ul>
+
+            <ul class="logout-mode">
+                <li><a href="#">
+                        <i class="uil uil-signout"></i>
+                        <span class="link-name">Logout</span>
+                    </a></li>
+
+                <li class="mode">
+
+
+                    <div class="mode-toggle">
+
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle"></i>
+
+            <div class="search-box">
+                <i class="uil uil-search"></i>
+                <input type="text" placeholder="Search here...">
+            </div>
+
+            <!--<img src="images/profile.jpg" alt="">-->
+        </div>
+
+        <div class="dash-content">
+            <div class="overview">
+                <div class="title">
+                    <i class="uil uil-tachometer-fast-alt"></i>
+                    <span class="text">Edit Room</span>
+                </div>
+
+                <form action="" method="post" enctype="multipart/form-data" id="room-form">
+
+                    {% csrf_token %}
+                    <input type="hidden" id="features-hidden" name="features-string">
+                    {% for message in messages %}
+                    <div class="messages" role="alert">
+                        <div class="alert alert-dismissible {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}"
+                            role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <div class="form-group">
+                        <label for="room_name" class="form-label">Room Name</label>
+                        <input type="text" name="room_name" id="room_name" class="form-control"
+                            value="{{room.room_name}}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="availability" class="form-label">Availability</label>
+                        <input type="number" name="availability" id="availability" class="form-control"
+                            value="{{room.availability}}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="price" class="form-label">Price</label>
+                        <input type="text" name="price" id="price" class="form-control" value="{{room.price}}" required>
+                    </div>
+
+                    <!-- <div class="form-group">
+                        <label for="image" class="form-label">Image</label>
+                        <input type="file" name="image" id="image" class="form-control" value="{{room.image.url}}"
+                            required>
+
+                    </div> -->
+                    <div class="form-group">
+                        <label for="current_image" class="form-label">Current Image</label><br>
+                        <img src="{{ room.image.url }}" alt="{{ room.room_name }}" style="max-width: 200px;">
+                    </div>
+
+                    <!-- New Image -->
+                    <div class="form-group">
+                        <label for="new_image" class="form-label">New Image</label>
+                        <input type="file" name="new_image" id="new_image" class="form-control">
+                    </div>
+
+                    <div id="features-group">
+                        {% for feature, count in features_counts %}
+                        <div class="feature-input-group" style="display: flex;">
+                            <div class="form-group">
+                                <label class="form-label">Feature</label>
+                                <input type="text" name="features[]" class="form-control feature-input"
+                                    value="{{ feature }}" required>
+                            </div>
+                            <div class="form-group" style="margin-left:20px;">
+                                <label class="form-label">Count</label>
+                                <input type="number" name="feature_counts[]" class="form-control count-input"
+                                    value="{{ count }}" required>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+
+                    <button type="button" id="add-feature-btn" class="btn btn-secondary">Add Feature</button>
+
+                    <div class="buttons" style="display: flex; margin-top: 10px;">
+                        <button type="button" class="btn btn-primary" id="submit-form-btn">Save</button>
+                        <a style="margin-left: 7px; margin-top: 5px;" href="/rooms">Back to List</a>
+                    </div>
+                </form>
+                <div class="activity">
+
+
+
+                </div>
+            </div>
+    </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('add-feature-btn').addEventListener('click', function () {
+                var featuresGroup = document.getElementById('features-group');
+                var featureInputGroup = document.createElement('div');
+                featureInputGroup.classList.add('feature-input-group');
+                featureInputGroup.style.display = 'flex';
+                featureInputGroup.style.marginTop = '20px';
+
+                var featureInput = document.createElement('div');
+                featureInput.classList.add('form-group');
+                featureInput.innerHTML = '<label class="form-label">Feature</label>' +
+                    '<input type="text" name="features[]" class="form-control feature-input" required>';
+                featureInputGroup.appendChild(featureInput);
+
+                var countInput = document.createElement('div');
+                countInput.classList.add('form-group');
+                countInput.style.marginLeft = "20px";
+                countInput.innerHTML = '<label class="form-label">Count</label>' +
+                    '<input type="number" name="feature_counts[]" class="form-control count-input" required>';
+                featureInputGroup.appendChild(countInput);
+
+                featuresGroup.appendChild(featureInputGroup);
+            });
+
+            document.getElementById('submit-form-btn').addEventListener('click', function (e) {
+                e.preventDefault();
+                var featureInputs = document.getElementsByClassName('feature-input');
+                var countInputs = document.getElementsByClassName('count-input');
+                var featuresString = '';
+
+                // Flag to track if any input field is lacking data
+                var isValid = true;
+
+                for (var i = 0; i < featureInputs.length; i++) {
+                    var count = countInputs[i].value.trim();
+                    var feature = featureInputs[i].value.trim();
+
+                    // Check if any input field is empty
+                    if (count === '' || feature === '') {
+                        isValid = false;
+                        // Show error message or highlight the fields as required
+                        countInputs[i].classList.add('is-invalid');
+                        featureInputs[i].classList.add('is-invalid');
+                    } else {
+                        countInputs[i].classList.remove('is-invalid');
+                        featureInputs[i].classList.remove('is-invalid');
+
+                        if (featuresString !== '') {
+                            featuresString += ', ';
+                        }
+                        featuresString += count + ' ' + feature;
+                    }
+                }
+
+                if (!isValid) {
+                    // Show error message or take appropriate action
+                    console.error('Please fill in all required fields');
+                    return;
+                }
+
+                document.getElementById('features-hidden').value = featuresString;
+
+                // Prepare form data
+                var formData = new FormData(document.getElementById('room-form'));
+
+                // Perform AJAX request to submit form data
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '', true);
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200) {
+                            // Handle successful response here
+                            console.log('Form submitted successfully');
+                            // Redirect to rooms.html after successful submission
+                            window.location.href = '/rooms';
+                        } else {
+                            // Handle error response here
+                            console.error('Error occurred while submitting form');
+                        }
+                    }
+                };
+                xhr.send(formData);
+            });
+        });
+
+    </script>
+
+
+
+
+    <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>
+</body>
+
+</html>

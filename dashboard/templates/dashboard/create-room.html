@@ -42,20 +42,20 @@
             <ul class="nav-links">
 
                 <li><a href="/admin-dashboard">
-                        <i class="uil uil-calendar-alt"></i>
+                        <i class="uil uil-tachometer-fast-alt"></i>
                         <span class="link-name">Dashboard</span>
                     </a></li>
 
                 <li><a href="/staffs">
-                        <i class="uil uil-credit-card" style="color: #0d6efd;"></i>
-                        <span class="link-name" style="color: #0d6efd;">Staffs</span>
+                        <i class="uil uil-users-alt"></i>
+                        <span class="link-name">Staffs</span>
                     </a></li>
                 <li><a href="/rooms">
-                        <i class="uil uil-comments"></i>
-                        <span class="link-name">Rooms</span>
+                        <i class="uil uil-bed" style="color: #0d6efd;"></i>
+                        <span class="link-name" style="color: #0d6efd;">Rooms</span>
                     </a></li>
-                <li><a href="/profile">
-                        <i class="uil uil-user-circle"></i>
+                <li><a href="/admin-reviews-ratings">
+                        <i class="uil uil-comments"></i>
                         <span class="link-name">Reviews and Ratings</span>
                     </a></li>
             </ul>
@@ -92,20 +92,70 @@
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
-                    <i class="uil uil-tachometer-fast-alt"></i>
-                    <span class="text">Create Staff</span>
+                    <i class="uil uil-bed"></i>
+                    <span class="text">Create Room</span>
                 </div>
 
-                <form action="" method="post">
+                <form action="" method="post" enctype="multipart/form-data" id="room-form">
 
                     {% csrf_token %}
+                    <input type="hidden" id="features-hidden" name="features-string">
+                    {% for message in messages %}
+                    <div class="messages" role="alert">
+                        <div class="alert alert-dismissible {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}"
+                            role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <div class="form-group">
+                        <label for="room_name" class="form-label">Room Name</label>
+                        <input type="text" name="room_name" id="room_name" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="availability" class="form-label">Availability</label>
+                        <input type="number" name="availability" id="availability" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="price" class="form-label">Price</label>
+                        <input type="text" name="price" id="price" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image" class="form-label">Image</label>
+                        <input type="file" name="image" id="image" class="form-control" required>
+
+                    </div>
+                    <br><br>
+                    <div id="features-group">
+                        <div class="feature-input-group" style="display: flex;">
+                            <div class="form-group">
+                                <label class="form-label">Feature</label>
+                                <input type="text" name="features[]" class="form-control feature-input" required>
+                            </div>
+                            <div class="form-group" style="margin-left:20px;">
+                                <label class="form-label">Count</label>
+                                <input type="text" name="feature_counts[]" class="form-control count-input" required>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <button type="button" id="add-feature-btn" class="btn btn-secondary">Add Feature</button>
+                    <br><br>
 
 
-
-
-                    <button type="submit" class="btn btn-primary">Create</button>
-
+                    <br>
+                    <div class="bu" style="display: flex;">
+                        <button type="submit" class="btn btn-primary" id="submit-form-btn">Create</button>
+                        <a style="margin-left: 7px; margin-top: 5px;" href="/rooms">Back to List</a>
+                    </div>
                 </form>
+
+
                 <div class="activity">
 
 
@@ -115,6 +165,52 @@
     </section>
 
     <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>
+
+    <script>
+        document.getElementById('add-feature-btn').addEventListener('click', function () {
+            var featuresGroup = document.getElementById('features-group');
+            var featureInputGroup = document.createElement('div');
+            featureInputGroup.classList.add('feature-input-group');
+            featureInputGroup.style.display = 'flex'
+            featureInputGroup.style.marginTop = '20px'
+
+            var featureInput = document.createElement('div');
+            featureInput.classList.add('form-group');
+            featureInput.innerHTML = '<label class="form-label">Feature</label>' +
+                '<input type="text" name="features[]" class="form-control feature-input" required>';
+            featureInputGroup.appendChild(featureInput);
+
+            var countInput = document.createElement('div');
+            countInput.classList.add('form-group');
+            countInput.style.marginLeft = "20px"
+            countInput.innerHTML = '<label class="form-label">Count</label>' +
+                '<input type="number" name="feature_counts[]" class="form-control count-input" required>';
+            featureInputGroup.appendChild(countInput);
+
+            featuresGroup.appendChild(featureInputGroup);
+
+
+            document.getElementById('submit-form-btn').addEventListener('click', function (e) {
+                e.preventDefault()
+                var featureInputs = document.getElementsByClassName('feature-input');
+                var countInputs = document.getElementsByClassName('count-input');
+                var featuresString = '';
+
+                for (var i = 0; i < featureInputs.length; i++) {
+                    if (featuresString !== '') {
+                        featuresString += ', ';
+                    }
+                    featuresString += countInputs[i].value + ' ' + featureInputs[i].value;
+                }
+                console.log(featuresString)
+
+                document.getElementById('features-hidden').value = featuresString;
+
+                document.getElementById('room-form').submit();
+            });
+        });
+    </script>
+
 </body>
 
 </html>
