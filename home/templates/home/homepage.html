@@ -62,9 +62,17 @@
                         <a class="nav-link me-2 active" href="#aboutus">About us</a>
                     </li>
                 </ul>
+                <p id="greetings" style="margin-top: 20px;margin-right: 15px;"></p>
                 <div class="flex">
-                    <a href="/login" class="btn btn-outline-dark shadow-none me-lg-2 me-3">Login</a>
+                    <a href="/login" id="login_btn" class="btn btn-outline-dark shadow-none me-lg-2 me-3">Login</a>
+                    <a id="dashboard-btn" href="/bookings" class="btn btn-outline-dark shadow-none me-lg-2 me-3"
+                        style="display: none;">Dashboard</a>
+                    <a id="logout-btn" href="/logout" class="btn btn-outline-dark shadow-none me-lg-2 me-3"
+                        style="display: none;">Logout</a>
+
+
                 </div>
+
 
             </div>
         </div>
@@ -102,11 +110,13 @@
                 <div class="row align-items-end">
                     <div class="col-lg-3 mb-3">
                         <label for="form-label" style="font-weight: 500;">Check-In</label>
-                        <input type="datetime-local" class="form-control shadow-none">
+                        <input type="date" class="form-control shadow-none" id="checkin"
+                            min="{{ today | date:'Y-m-d' }}">
                     </div>
                     <div class="col-lg-3 mb-3">
                         <label for="form-label" style="font-weight: 500;">Check-Out</label>
-                        <input type="datetime-local" class="form-control shadow-none">
+                        <input type="date" class="form-control shadow-none" id="checkout"
+                            min="{{ today | date:'Y-m-d' }}">
                     </div>
                     <div class="col-lg-3 mb-3">
                         <label for="form-label" style="font-weight: 500;">Adult</label>
@@ -154,7 +164,7 @@
                             alt="{{room.room_name}}">
                         <div class="card-body">
                             <h5>{{room.room_name}}</h5>
-                            <h6 class="mb-4">NPR {{room.price}}</h6>
+                            <h6 class="mb-4"> <b>NPR {{room.price}} </b></h6>
                             <div class="features mb-4">
                                 <h6 class="mb-1">Features</h6>
 
@@ -442,8 +452,39 @@
                 },
             }
         });
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('checkin').setAttribute('min', today);
+        document.getElementById('checkout').setAttribute('min', today);
 
     </script>
+
+
+    <script>
+        const dashboardBtn = document.getElementById('dashboard-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        fetch('/api/check-login/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.logged_in) {
+                    // Hide login button and show dashboard and logout buttons
+                    document.getElementById('login_btn').style.display = 'none'
+                    dashboardBtn.style.display = 'inline-block';
+                    logoutBtn.style.display = 'inline-block';
+                    document.getElementById('greetings').innerHTML = 'Hi ' + data.user + ' !'
+                } else {
+                    document.getElementById('login_btn').style.display = 'block'
+                    dashboardBtn.style.display = 'none';
+                    logoutBtn.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while checking login status.');
+            });
+    </script>
+
+
+
 </body>
 
 </html>

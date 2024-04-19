@@ -13,7 +13,7 @@
 
 .image-container img {
     object-fit: cover;
-    height: 115vh;
+    height: 135vh;
     width: -webkit-fill-available;
 }
 

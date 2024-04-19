@@ -10,6 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
+from django.contrib.auth import logout
+
 
 
 
@@ -17,9 +19,14 @@ from google.auth.transport import requests
 
 
 def Login(request):
+    if request.user.is_authenticated:
+        logout(request)
+
     context={ 'username':''
 
     }
+
+    
     if request.method == 'POST':
         username=request.POST['username']
         pass1=request.POST['pass1']
@@ -34,7 +41,8 @@ def Login(request):
         if user is not None and user.is_verified:  # Check if user is verified
             login(request, user)
             fname = user.first_name
-            return render(request, 'dashboard/user-bookings.html', {'fname': fname})
+            print('hello')
+            return redirect('home')
           
         elif user is not None and not user.is_verified:
             messages.error(request, "Your email is not verified yet. Please check your email for verification.")
@@ -231,7 +239,7 @@ def auth_receiver(request):
         login(request, user)
 
         # Redirect to dashboard if user exists
-        return redirect('user_bookings')
+        return redirect('home')
     except CustomUser.DoesNotExist:
         
         user = CustomUser.objects.create_user(
@@ -268,7 +276,7 @@ def askContact(request):
 
         request.user.contact_number = contact
         request.user.save()
-        return redirect('user_dashboard')  
+        return redirect('user_bookings')  
     
     return render(request, 'authentication/ask_contact.html')
 

@@ -8,6 +8,9 @@ class Room(models.Model):
     features = models.CharField(max_length=200)
     slug = models.SlugField(max_length=100, unique=True, blank=True)
     availability = models.IntegerField(default=0)
+    max_room=models.IntegerField(default=5)
+    number_of_adult=models.IntegerField(default=0)
+    number_of_children=models.IntegerField(default=0)
     
     def save(self, *args, **kwargs):
         if not self.slug:  # Generate slug only if it's not provided

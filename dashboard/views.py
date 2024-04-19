@@ -8,16 +8,21 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from dashboard.models import Booking
 from home . models import Room
+from datetime import datetime
 from django.utils import timezone
-@login_required
+from django.db.models import Q
+from .utils import admin_required,user_required
+
+
+@user_required
 def UserBookings(request):
      return render(request, 'dashboard/user-bookings.html')
 
-@login_required
+@user_required
 def Payment(request):
      return render(request, 'dashboard/payment.html')
 
-@login_required
+@user_required
 def ReviewRating(request):
          return render(request, 'dashboard/reviews-rating.html')
 
@@ -25,7 +30,7 @@ def ReviewRating(request):
 
 
 
-@login_required
+@user_required
 def Profile(request):
     user_profile = CustomUser.objects.get(username=request.user.username)
 
@@ -63,11 +68,19 @@ def Profile(request):
             return JsonResponse({'success': "Saved successfully!"})
 
     # Pass the profile data to the template
-    return render(request, 'dashboard/profile.html', {'user_profile': user_profile})
+    return render(request, 'dashboard/profile.html', {'user_profile': user_profile,'username':request.user.username})
 
-
+@login_required
+@admin_required
 def AdminDashboard(request):
       return render(request, 'dashboard/admin-dashboard.html')
+
+def StaffDashboard(request):
+    bookings = Booking.objects.all()
+    context = {
+            'bookings': bookings,
+        }
+    return render(request, 'dashboard/staff-dashboard.html', context)
 
 def Staffs(request):
     staff_members = CustomUser.objects.filter(is_staff=True,is_verified=True)
@@ -231,7 +244,7 @@ def CreateRoom(request):
         print(features_string)
 
         # Save Room object with extracted data
-        room = Room(room_name=room_name, availability=availability,price=price, image=image, features=features_string, slug='')
+        room = Room(room_name=room_name, availability=availability,price=price, image=image, features=features_string, slug='',max_room=availability)
         room.save()
        
 
@@ -289,21 +302,105 @@ def DeleteRoom(request,id):
         return JsonResponse({'error': str(e)}, status=500)
     
 
+
+
+@user_required
 def BookRoom(request, id):
-    # Retrieve the room object using the slug
+    # Retrieve the room object using the ID
     room = Room.objects.get(id=id)
-    print(request.user.id)
-    if request.method == 'POST':
-        # Retrieve room ID from the POST request
-        room_id = id
-
-        # Save the booking data to the Booking model
-        booking = Booking.objects.create(user=request.user,room_id=int(room_id),payment_status=False)
-
-        # Return a JSON response indicating success
-        return JsonResponse({'message': 'Booking successful'})
-
-    # Return an error response if the request method is not POST
     
+    if request.method == 'POST': 
+        json_data = json.loads(request.body)
 
+        # Retrieve room ID from the POST request
+        room_id = json_data.get('room_id')
+        checkin_str = json_data.get('checkin')  # Assuming 'checkin' is a string in format YYYY-MM-DD
+        checkout_str = json_data.get('checkout')  # Assuming 'checkout' is a string in format YYYY-MM-DD
+
+
+        # Convert string dates to Python date objects
+        checkin_date = datetime.strptime(checkin_str, '%Y-%m-%d').date()
+        checkout_date = datetime.strptime(checkout_str, '%Y-%m-%d').date()
+
+        if not Booking.objects.filter(room_id=room_id, check_out_date__lte=checkin_date).exists():
+            if Booking.objects.filter(room_id=room_id, check_out_date__gte=checkin_date).exists():
+                if Room.objects.filter(id=room_id,availability=0):
+                    return JsonResponse({'message': 'Room already booked'})
+                    
+        
+     
+       
+            # Save the booking data to the Booking model
+        booking = Booking.objects.create(
+                user=request.user,
+                room_id=int(room_id),
+                check_in_date=checkin_date,
+                check_out_date=checkout_date,
+                payment_status=False
+            )
+        
+        room.save()
+            
+            # Return a JSON response indicating success
+        return JsonResponse({'message': 'Booking successful'})
+        
+       
+    
+    # Return an error response if the request method is not POST
     return render(request, 'dashboard/book-room.html', {'room': room})
+
+
+
+ 
+def booking_list(request, roomname):
+   
+    checkin_date= request.GET.get("check_in_date")
+    checkout_date=request.GET.get("check_out_date")
+    checkin_date = timezone.datetime.strptime(checkin_date, '%Y-%m-%d').date()
+    checkout_date = timezone.datetime.strptime(checkout_date, '%Y-%m-%d').date()
+
+    if checkout_date < checkin_date:
+        
+        return JsonResponse({'message': 'Checkout date should be after the Checkin date',"status":2})
+    
+    bookings = Booking.objects.filter(
+        Q(check_in_date__lt=checkout_date, check_out_date__gt=checkin_date,room__room_name=roomname) |
+        Q(check_in_date__gte=checkin_date, check_out_date__lte=checkout_date,room__room_name=roomname) |
+        Q(check_in_date__lt=checkin_date, check_out_date__gt=checkout_date,room__room_name=roomname)
+    )
+    
+   
+    room=Room.objects.get(room_name=roomname)
+    
+    latest_booking=0
+    if bookings:
+        bookings = bookings.order_by('check_out_date')
+        # Get the latest booking (first booking in the ordered queryset)
+        latest_booking = bookings.first()
+    
+    # Convert queryset to JSON format
+    booking_data = []
+    for booking in bookings:
+        
+        booking_data.append({
+            'room_name': booking.room.room_name,
+            'username': booking.user.username,
+            'payment_status': booking.payment_status,
+            'check_in_date': booking.check_in_date.strftime('%Y-%m-%d'),  # Convert date to string
+            'check_out_date': booking.check_out_date.strftime('%Y-%m-%d'),  # Convert date to string
+        })
+
+
+    if room.max_room > len(booking_data):
+        print('book hanna payo')
+        checkindate= request.GET.get("check_in_date")
+        checkin_date = timezone.datetime.strptime(checkindate, '%Y-%m-%d').date()
+        checkoutdate=request.GET.get("check_out_date")
+        checkout_date = timezone.datetime.strptime(checkoutdate, '%Y-%m-%d').date()
+        # Check if the latest checkout date is earlier than the check-in date
+        return JsonResponse({'bookings': booking_data,"status":0})
+    else:
+        return JsonResponse({'message': latest_booking.check_out_date,"status":1})
+     
+    # Return JSON response
+    return JsonResponse({'bookings': booking_data,"status":0})

@@ -53,11 +53,11 @@
 
                 <li><a href="/payment">
                         <i class="uil uil-credit-card"></i>
-                        <span class="link-name">Payment</span>
+                        <span class="link-name">Payments</span>
                     </a></li>
                 <li><a href="/reviews-ratings">
                         <i class="uil uil-comments"></i>
-                        <span class="link-name">Reviews and Rating</span>
+                        <span class="link-name">Reviews and Ratings</span>
                     </a></li>
                 <li><a href="/profile">
                         <i class="uil uil-user-circle" style="color: #0d6efd;"></i>
@@ -66,7 +66,7 @@
             </ul>
 
             <ul class="logout-mode">
-                <li><a href="#">
+                <li><a href="/logout">
                         <i class="uil uil-signout"></i>
                         <span class="link-name">Logout</span>
                     </a></li>
@@ -157,6 +157,9 @@
 
 
     <script>
+        document.getElementById("changePass").addEventListener("click", (() => {
+            window.location.href = `/forgot-password?type=change&username=${document.getElementById('usernamehidden').textContent}`
+        }));
         document.getElementById('editBtn').addEventListener('click', function () {
             document.getElementById("email").disabled = true;
             document.getElementById("username").disabled = true; // Disable username field

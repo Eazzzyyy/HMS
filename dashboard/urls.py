@@ -5,7 +5,7 @@ from . import views
 
 urlpatterns = [ 
     
-    # path('staff-dashboard/',views.StaffDashboard, name='staff_dashboard'), 
+    path('staff-dashboard/',views.StaffDashboard, name='staff_dashboard'), 
     path('bookings/', views.UserBookings, name='user_bookings'),
     path('payment/', views.Payment, name='payment'),
     path('reviews-ratings', views.ReviewRating, name='reviews_rating'),
@@ -20,5 +20,7 @@ urlpatterns = [
     path('edit-room/<id>', views.EditRoom, name='edit-room'),
     path('admin-reviews-ratings/', views.admin_reviews_ratings, name='admin-reviews-ratings'),
     path('delete-room/<id>/', views.DeleteRoom, name='delete-room'),
-    path('book/<id>/', views.BookRoom, name='book-room')
+    path('book/<id>/', views.BookRoom, name='book-room'),
+    path('bookingstatus/<roomname>/', views.booking_list, name='booking-list'),
+
 ]
