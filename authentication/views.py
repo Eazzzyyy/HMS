@@ -1,3 +1,4 @@
+import re
 import uuid
 from django.shortcuts import render, redirect
 from .models import CustomUser
@@ -9,13 +10,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
 from google.auth.transport import requests
-
 from django.contrib.auth import logout
-
-
-
-
-
 
 
 def Login(request):
@@ -52,7 +47,6 @@ def Login(request):
 
 
 
-import re
 
 def Register(request):
     context = {
@@ -140,6 +134,8 @@ def Register(request):
     return render(request, 'authentication/register.html', context)
 
 
+
+
 def VerifyEmail(request, token):
     try:
         user = CustomUser.objects.get(email_token=token)
@@ -150,6 +146,9 @@ def VerifyEmail(request, token):
         messages.error(request, "Invalid verification token.")
 
     return redirect('login')
+
+
+
 
 
 
@@ -178,6 +177,10 @@ def ForgotPassword(request):
             messages.error(request, "User not found.")
             return redirect('forgot_password')
     return render(request, 'authentication/forgot-password.html')
+
+
+
+
 
 
 
@@ -212,6 +215,8 @@ def ResetPassword(request, token):
         return redirect('forgot_password')
 
     return render(request, 'authentication/reset-password.html')
+
+
 
 
 
@@ -280,6 +285,9 @@ def askContact(request):
     
     return render(request, 'authentication/ask_contact.html')
 
+
+def Admin_Staff_Login(request):
+    return render(request, 'authentication/uelogin.html')
 
 
 

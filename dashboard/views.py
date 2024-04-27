@@ -16,7 +16,16 @@ from .utils import admin_required,user_required
 
 @user_required
 def UserBookings(request):
-     return render(request, 'dashboard/user-bookings.html')
+    # Retrieve all bookings associated with the current user
+    bookings = Booking.objects.filter(user=request.user)
+    
+    # Pass the bookings queryset to the template context
+    context = {
+        'bookings': bookings
+    }
+    
+    # Render the template with the bookings data
+    return render(request, 'dashboard/user-bookings.html', context)
 
 @user_required
 def Payment(request):
@@ -25,6 +34,11 @@ def Payment(request):
 @user_required
 def ReviewRating(request):
          return render(request, 'dashboard/reviews-rating.html')
+
+
+def StaffProfile(request):
+    return render(request, 'dashboard/staff-profile.html')
+
 
 
 
@@ -392,7 +406,7 @@ def booking_list(request, roomname):
 
 
     if room.max_room > len(booking_data):
-        print('book hanna payo')
+      
         checkindate= request.GET.get("check_in_date")
         checkin_date = timezone.datetime.strptime(checkindate, '%Y-%m-%d').date()
         checkoutdate=request.GET.get("check_out_date")
@@ -404,3 +418,116 @@ def booking_list(request, roomname):
      
     # Return JSON response
     return JsonResponse({'bookings': booking_data,"status":0})
+
+
+
+
+
+
+def booking_list_filter(request):
+
+    checkin_date= request.GET.get("check_in_date")
+    checkout_date=request.GET.get("check_out_date")
+
+    adult=int(request.GET.get("adult"))
+    child=int(request.GET.get('child'))
+
+    checkin_date = timezone.datetime.strptime(checkin_date, '%Y-%m-%d').date()
+    checkout_date = timezone.datetime.strptime(checkout_date, '%Y-%m-%d').date()
+
+    if checkout_date < checkin_date:
+        return JsonResponse({'message': 'Checkout date should be after the Checkin date',"status":2})
+    
+    bookings = Booking.objects.filter(
+        Q(check_in_date__lt=checkout_date, check_out_date__gt=checkin_date) |
+        Q(check_in_date__gte=checkin_date, check_out_date__lte=checkout_date) |
+        Q(check_in_date__lt=checkin_date, check_out_date__gt=checkout_date)
+    )
+    
+    room_list=Room.objects.filter(
+        Q(number_of_adult__gte=adult) and Q(number_of_children__gte=child)
+    )
+    
+    latest_booking=0
+    if bookings:
+        bookings = bookings.order_by('-check_out_date')
+        # Get the latest booking (first booking in the ordered queryset)
+        latest_booking = bookings.first()
+    
+    # Convert queryset to JSON format
+    booking_data = []
+    for booking in bookings: 
+        booking_data.append({
+            'room_name': booking.room.room_name,
+            'username': booking.user.username,
+            'payment_status': booking.payment_status,
+            'check_in_date': booking.check_in_date.strftime('%Y-%m-%d'),  # Convert date to string
+            'check_out_date': booking.check_out_date.strftime('%Y-%m-%d'),  # Convert date to string
+        })
+
+
+    status=1
+    room_counts = {}  # Dictionary to store counts for each room
+
+    for booking_info in booking_data:
+        room_name = booking_info['room_name']
+        room_counts[room_name] = room_counts.get(room_name, 0) + 1
+
+    available_rooms={}
+        
+    for room in room_list:
+        room_name=room.room_name
+        booking_count = room_counts.get(room_name, 0)
+        if room.max_room > booking_count:
+            available_rooms[room.room_name]=room.max_room-booking_count
+            status=0
+            checkindate= request.GET.get("check_in_date")
+            checkin_date = timezone.datetime.strptime(checkindate, '%Y-%m-%d').date()
+            checkoutdate=request.GET.get("check_out_date")
+            checkout_date = timezone.datetime.strptime(checkoutdate, '%Y-%m-%d').date()
+
+    if status==0:
+        return JsonResponse({'bookings': available_rooms,"status":0})
+
+    return JsonResponse({'message': latest_booking.check_out_date,"status":1})
+
+
+
+
+@user_required
+def BookAvailableRoom(request):
+    # Retrieve the room object using the ID
+    room_id=request.GET.get("id")
+    room = Room.objects.get(id=room_id)
+    
+
+    # Retrieve room ID from the POST request
+   
+    checkin_str = request.GET.get('check_in_date')  # Assuming 'checkin' is a string in format YYYY-MM-DD
+    checkout_str = request.GET.get('check_out_date')  # Assuming 'checkout' is a string in format YYYY-MM-DD
+
+
+    # Convert string dates to Python date objects
+    checkin_date = datetime.strptime(checkin_str, '%Y-%m-%d').date()
+    checkout_date = datetime.strptime(checkout_str, '%Y-%m-%d').date()
+
+
+        # Save the booking data to the Booking model
+    booking = Booking.objects.create(
+            user=request.user,
+            room_id=int(room_id),
+            check_in_date=checkin_date,
+            check_out_date=checkout_date,
+            payment_status=False
+        )
+
+    room.save()
+        
+        # Return a JSON response indicating success
+    return JsonResponse({'message': 'Booking successful'})
+        
+       
+    
+    # Return an error response if the request method is not POST
+    return render(request, 'dashboard/book-room.html', {'room': room})
+

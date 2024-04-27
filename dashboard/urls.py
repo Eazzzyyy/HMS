@@ -22,5 +22,7 @@ urlpatterns = [
     path('delete-room/<id>/', views.DeleteRoom, name='delete-room'),
     path('book/<id>/', views.BookRoom, name='book-room'),
     path('bookingstatus/<roomname>/', views.booking_list, name='booking-list'),
-
+    path('staff-profile/', views.StaffProfile, name='staff-profile'),
+    path('booking_list_filter/',views.booking_list_filter,name='filter_booking'),
+    path('book-available-room/',views.BookAvailableRoom, name='book-available-room')
 ]

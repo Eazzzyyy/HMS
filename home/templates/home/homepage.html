@@ -120,8 +120,8 @@
                     </div>
                     <div class="col-lg-3 mb-3">
                         <label for="form-label" style="font-weight: 500;">Adult</label>
-                        <select class="form-select shadow-none">
-                            <option selected>0</option>
+                        <select class="form-select shadow-none" id="adult">
+                            <option value="0" selected>0</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -130,8 +130,8 @@
 
                     <div class="col-lg-2 mb-3">
                         <label for="form-label" style="font-weight: 500;">Children</label>
-                        <select class="form-select shadow-none">
-                            <option selected>0</option>
+                        <select class="form-select shadow-none" id="child">
+                            <option value="0" selected>0</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -139,12 +139,13 @@
                     </div>
 
                     <div class="col-lg-1 mb-lg-3 mt-2">
-                        <button type="submit" class="btn btn-primary text-white shadow-none">
+                        <button id="filterBooking" class="btn btn-primary text-white shadow-none">
                             Submit
                         </button>
                     </div>
                 </div>
-
+                <br>
+                <p style="text-align: center;color:  red;" id="error_message" style="display: none;"></p>
 
             </form>
         </div>
@@ -159,6 +160,7 @@
                 {% for room in rooms %}
 
                 <div class="col-lg-4 col-md-6 my-3">
+
                     <div class="card border-0 shadow" style="max-width: 350px; margin: auto;">
                         <img class="card-img-top" style="height:250px;object-fit: cover;" src="{{ room.image.url }}"
                             alt="{{room.room_name}}">
@@ -484,7 +486,130 @@
     </script>
 
 
+    <script>
+        document.getElementById('filterBooking').addEventListener('click', ((e) => {
+            e.preventDefault()
+            // Get values of check-in, check-out, adult, and child
+            var checkinDate = new Date(document.getElementById('checkin').value);
+            var checkoutDate = new Date(document.getElementById('checkout').value);
+            var adultCount = parseInt(document.getElementById('adult').value);
+            var childCount = parseInt(document.getElementById('child').value);
 
+            // Check if check-in and check-out dates are equal
+            if (checkinDate.getTime() === checkoutDate.getTime()) {
+                // Dates are equal, show error message
+                document.getElementById('error_message').innerText = "Check-in and check-out dates cannot be the same.";
+                return; // Exit function
+            }
+
+            if (checkinDate >= checkoutDate) {
+                // Check-in date is not earlier than checkout date, show error message
+                document.getElementById('error_message').innerText = "Check-in date must be earlier than checkout date.";
+                return; // Exit function
+            }
+
+
+            // Check if both adult and child counts are zero
+            if (adultCount === 0 && childCount === 0) {
+                // Both counts are zero, show error message
+                document.getElementById('error_message').innerText = "Please select at least one adult ";
+                return; // Exit function
+            }
+
+            if (adultCount === 0 && childCount >= 0) {
+                // Both counts are zero, show error message
+                document.getElementById('error_message').innerText = "Please select number of adult";
+                return; // Exit function
+            }
+
+            document.getElementById('error_message').style.display = 'none'
+
+            // Define the URL to request
+            let url_to_request = `/booking_list_filter/?check_in_date=${document.getElementById('checkin').value}&check_out_date=${document.getElementById('checkout').value}&adult=${document.getElementById('adult').value}&child=${document.getElementById('child').value}`;
+
+            // Send GET request using fetch
+            fetch(url_to_request)
+                .then(response => {
+                    // Check if response is successful (status code 200)
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // Parse response data as JSON
+                    return response.json();
+                })
+                .then(data => {
+                    // Handle the data from the response
+                    console.log('Response data:', data);
+                    if (status == 0) {
+                        // Assuming `data` is your JavaScript variable containing the data
+                        const bookings = JSON.stringify(data.bookings); // Convert bookings object to a JSON string
+                        console.log(bookings)
+                        if (!bookings) {
+
+                            document.getElementById('error_message').style.display = 'block'
+                            document.getElementById('error_message').innerHTML = "Rooms are not available for the specified date"
+                            return
+                        }
+                        // Construct the URL with query parameters
+                        let url = `/available-rooms/?bookings=${encodeURIComponent(bookings)}&status=${data.status}&check_out_date=${document.getElementById('checkout').value}&check_in_date=${document.getElementById('checkin').value}`;
+
+                        console.log(data.bookings)
+                        let roomCounts = data.bookings
+                        for (let roomType in roomCounts) {
+                            console.log(roomType + ": " + roomCounts[roomType]);
+                            url += `&${roomType}=${roomCounts[roomType]}`
+                        }
+
+                        // return 0
+
+
+                        // Redirect to the constructed URL
+                        window.location.href = url;
+                    } else {
+                        alert('No rooms available')
+                    }
+                    // You can perform further actions with the data here
+                })
+                .catch(error => {
+                    // Handle any errors that occur during the fetch operation
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+
+
+        }))
+    </script>
+
+
+    <script>
+        // Retrieve the saved URL from localStorage
+
+
+        fetch('/api/check-login/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.logged_in) {
+                    // Hide login button and show dashboard and logout buttons
+                    document.getElementById('login_btn').style.display = 'none'
+                    dashboardBtn.style.display = 'inline-block';
+                    logoutBtn.style.display = 'inline-block';
+                    document.getElementById('greetings').innerHTML = 'Hi ' + data.user + ' !'
+                    var savedUrl = localStorage.getItem("link");
+
+                } else {
+                    document.getElementById('login_btn').style.display = 'block'
+                    dashboardBtn.style.display = 'none';
+                    logoutBtn.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while checking login status.');
+            });
+
+
+
+
+    </script>
 </body>
 
 </html>

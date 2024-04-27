@@ -1,6 +1,7 @@
-
 from django.conf import settings
 from django.core.mail import send_mail
+
+
 
 def send_email_token(email,token):
 
@@ -17,6 +18,8 @@ def send_email_token(email,token):
             return False
 
     return True
+
+
 
 def send_password_token(email, token):
     try:

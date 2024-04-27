@@ -26,7 +26,19 @@
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
     <title>Bookings</title>
+    <style>
+        .bordered-table {
+            border: 1px solid black;
+
+        }
+
+        .table-container {
+            margin-top: 20px;
+
+        }
+    </style>
 </head>
+
 
 <body>
     <nav>
@@ -81,10 +93,10 @@
         <div class="top">
             <i class="uil uil-bars sidebar-toggle"></i>
 
-            <div class="search-box">
+            <!-- <div class="search-box">
                 <i class="uil uil-search"></i>
                 <input type="text" placeholder="Search here...">
-            </div>
+            </div> -->
 
 
         </div>
@@ -113,6 +125,33 @@
                         <span class="number">10,120</span>
                     </div>
                 </div> -->
+
+                <div class="table-container">
+
+                    <table class="table table-striped bordered-table">
+                        <thead>
+                            <tr>
+                                <th>Room Name</th>
+
+                                <th>Check-in Date</th>
+                                <th>Check-out Date</th>
+                                <th>Payment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr>
+                                <td>{{ booking.room.room_name }}</td>
+
+                                <td>{{ booking.check_in_date }}</td>
+                                <td>{{ booking.check_out_date }}</td>
+                                <td>{{ booking.payment_status }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
             </div>
 
             <div class="activity">
