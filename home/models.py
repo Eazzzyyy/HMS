@@ -12,6 +12,7 @@ class Room(models.Model):
     number_of_adult=models.IntegerField(default=0)
     number_of_children=models.IntegerField(default=0)
     
+    
     def save(self, *args, **kwargs):
         if not self.slug:  # Generate slug only if it's not provided
             self.slug = slugify(self.room_name)

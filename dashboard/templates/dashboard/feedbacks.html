@@ -25,7 +25,7 @@
     <!----===== Iconscout CSS ===== -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
-    <title>Bookings</title>
+    <title>Feedbacks</title>
     <style>
         .bordered-table {
             border: 1px solid black;
@@ -53,13 +53,13 @@
             <ul class="nav-links">
 
                 <li><a href="/staff-dashboard">
-                        <i class="uil uil-calendar-alt" style="color: #0d6efd;"></i>
-                        <span class="link-name" style="color: #0d6efd;">Bookings</span>
+                        <i class="uil uil-calendar-alt"></i>
+                        <span class="link-name">Bookings</span>
                     </a></li>
 
                 <li><a href="/feedbacks">
-                        <i class="uil uil-calendar-alt"></i>
-                        <span class="link-name">Feedbacks</span>
+                        <i class="uil uil-calendar-alt" style="color: #0d6efd;"></i>
+                        <span class="link-name" style="color: #0d6efd;">Feedbacks</span>
                     </a></li>
 
 
@@ -98,112 +98,41 @@
             <div class="overview">
 
 
-                <div class="boxes" style="margin-top: 45px; margin-bottom: 50px;">
-                    <div class="box box1">
-                        <i class="uil uil-bed"></i>
-                        <span class="text">Rooms</span>
-                        <span class="number">1</span>
-                    </div>
-                    <div class="box box2">
-                        <i class="uil uil-users-alt"></i>
-                        <span class="text">Staffs</span>
-                        <span class="number">2</span>
-                    </div>
-                    <div class="box box3">
-                        <i class="uil uil-comments"></i>
-                        <span class="text">Reviews</span>
-                        <span class="number">10</span>
-                    </div>
+
+                <div class="title">
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="text">Feedbacks</span>
                 </div>
-            </div>
-
-            <div class="title">
-                <i class="uil uil-search"></i>
-                <span class="text">Search Availability</span>
-
-            </div>
-
-            <div class="row"
-                style="display: flex; align-items: center ;justify-content: flex-start; margin-bottom: 10px; ">
-                <div class="col-md-3 mb-3">
-                    <label for="checkin" class="form-label mb-1" style="font-weight: 500;">Check-In</label>
-                    <input type="date" class="form-control shadow-none" id="checkin" name="checkin"
-                        min="{{ today | date:'Y-m-d' }}">
+                <div class="table-container">
+                    <table class="table table-striped bordered-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Date</th>
+                                <th>Feedback</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for feedback in all_feedback %}
+                            <tr>
+                                <td>{{ feedback.user }}</td>
+                                <td>{{ feedback.date }}</td>
+                                <td>{{ feedback.feedback }}</td>
+                                <td><a href="/view-extend/{{ feedback.user.id }}"><button>View</button></a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label for="checkout" class="form-label mb-1" style="font-weight: 500;">Check-Out</label>
-                    <input type="date" class="form-control shadow-none" id="checkout" name="checkout"
-                        min="{{ today | date:'Y-m-d' }}">
-                </div>
-                <div class="col-md-3 " style="margin-top: 10px;">
-                    <button id="viewRooms" class="btn btn-primary text-white shadow-none">
-                        Search
-                    </button>
-                </div>
-            </div>
-
-            <p style="color:  red;" id="error_message" style="display: none;"></p>
-
-
-            <!-- HTML structure for the Bootstrap table -->
-            <div id="available_r" class="available_rooms " style="display: none;">
-                <table class="table table-striped bordered-table">
-                    <thead>
-                        <tr>
-                            <th>Room</th>
-                            <th>Available Rooms</th>
-                        </tr>
-                    </thead>
-                    <tbody id="roomTableBody">
-                        <!-- Table body will be dynamically generated here -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="title">
-                <i class="uil uil-calendar-alt"></i>
-                <span class="text">Bookings</span>
-            </div>
-            <div class="table-container">
-
-                <table class="table table-striped bordered-table">
-                    <thead>
-                        <tr>
-                            <th>Room Name</th>
-                            <th>Username</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Contact Number</th>
-                            <th>Check-in Date</th>
-                            <th>Check-out Date</th>
-                            <th>Payment Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for booking in bookings %}
-                        <tr>
-                            <td>{{ booking.room.room_name }}</td>
-                            <td>{{ booking.user.username }}</td>
-                            <td>{{ booking.user.first_name }}</td>
-                            <td>{{ booking.user.last_name }}</td>
-                            <td>{{ booking.user.contact_number }}</td>
-                            <td>{{ booking.check_in_date }}</td>
-                            <td>{{ booking.check_out_date }}</td>
-                            <td>{{ booking.payment_status }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
 
             </div>
 
-        </div>
-
-        <div class="activity">
+            <div class="activity">
 
 
 
-        </div>
+            </div>
         </div>
     </section>
 

@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load custom_filters_tags %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -167,22 +167,21 @@
                         <div class="card-body">
                             <h5>{{room.room_name}}</h5>
                             <h6 class="mb-4"> <b>NPR {{room.price}} </b></h6>
+
+
                             <div class="features mb-4">
                                 <h6 class="mb-1">Features</h6>
-
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    2 Rooms
-                                </span>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    2 Bathroom
-                                </span>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    1 Balcony
-                                </span>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    3 Sofa
-                                </span>
+                                <!-- Using the custom filter to split the features string -->
+                                {% for feature in room.features|split_features %}
+                                <span class="badge rounded-pill bg-light text-dark text-wrap">{{ feature }}</span>
+                                {% endfor %}
                             </div>
+
+
+
+
+
+
                             <div class="facilities mb-4">
                                 <h6 class="mb-1">Facilities</h6>
                                 <span class="badge rounded-pill bg-light text-dark text-wrap ">
@@ -559,7 +558,7 @@
                             console.log(roomType + ": " + roomCounts[roomType]);
                             url += `&${roomType}=${roomCounts[roomType]}`
                         }
-
+                        console.log(url)
                         // return 0
 
 
@@ -610,6 +609,7 @@
 
 
     </script>
+
 </body>
 
 </html>

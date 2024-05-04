@@ -11,7 +11,7 @@ urlpatterns = [
     path('reset-password/<str:token>/',views.ResetPassword,name='reset_password'),# the third parameter can be used when using the '{% url %}' template tag to refer to a urlpattern
     path('auth-receiver', views.auth_receiver, name='auth_receiver'),
     path('askContact/', views.askContact, name='askContact'),
-    path('administration/', views.Admin_Staff_Login, name='uelogin'),
+    path('administration/', views.Staff_Login, name='uelogin'),
     
    
 

@@ -34,3 +34,19 @@ def user_required(view_func):
     else:
       return redirect(reverse_lazy('login'))  # Redirect to login
   return _wrapped_view
+
+
+def staff_required(view_func):
+    """
+    Decorator for views that checks whether the user is a staff member.
+    If the user is a staff member, the view is executed normally.
+    If not, the user is redirected to a login page.
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_staff:
+            print("User is a staff member!")  # For debugging purposes
+            return view_func(request, *args, **kwargs)
+        else:
+            return redirect(reverse_lazy('uelogin'))  # Redirect to login
+    return _wrapped_view

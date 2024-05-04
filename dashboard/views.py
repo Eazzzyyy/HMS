@@ -1,5 +1,5 @@
 import re
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from authentication.models import CustomUser
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -11,7 +11,7 @@ from home . models import Room
 from datetime import datetime
 from django.utils import timezone
 from django.db.models import Q
-from .utils import admin_required,user_required
+from .utils import admin_required,user_required,staff_required
 
 
 @user_required
@@ -35,9 +35,50 @@ def Payment(request):
 def ReviewRating(request):
          return render(request, 'dashboard/reviews-rating.html')
 
-
+@staff_required
 def StaffProfile(request):
-    return render(request, 'dashboard/staff-profile.html')
+     user_profile = CustomUser.objects.get(username=request.user.username)
+
+     if request.method == 'POST':
+        # Extract JSON data from request body
+        data = json.loads(request.body)
+        
+        # Extract firstname, lastname, and contact number from JSON data
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        contact_number = data.get('contact_number')
+
+        # Validation
+        errors = {}
+
+        if len(str(contact_number)) != 10:
+            errors['contact'] = "The contact number should be exactly 10 digits."
+
+        if CustomUser.objects.exclude(username=user_profile.username).filter(contact_number=contact_number).exists():
+            errors['contact'] = "The contact number is already in use. Please choose a different contact number."
+        
+        if 'contact' in errors:
+            # If there are errors, return the errors as JSON response
+            return JsonResponse(errors)
+        else:
+            # Update user information
+            user_profile.first_name = first_name
+            user_profile.last_name = last_name
+            user_profile.contact_number = contact_number
+
+            # Save the updated user object
+            user_profile.save()
+          
+            # Return success message as JSON response
+            return JsonResponse({'success': "Saved successfully!"})
+
+    # Pass the profile data to the template
+   
+     return render(request, 'dashboard/staff-profile.html')
+
+@staff_required
+def StaffBookRoom(request):
+    return render(request, 'dashboard/staff-book-room.html')
 
 
 
@@ -89,6 +130,8 @@ def Profile(request):
 def AdminDashboard(request):
       return render(request, 'dashboard/admin-dashboard.html')
 
+
+@staff_required
 def StaffDashboard(request):
     bookings = Booking.objects.all()
     context = {
@@ -377,6 +420,18 @@ def booking_list(request, roomname):
         
         return JsonResponse({'message': 'Checkout date should be after the Checkin date',"status":2})
     
+
+    user = request.user
+
+    # Retrieve all bookings for the logged-in user
+    bookings = Booking.objects.filter(  Q(check_in_date=checkin_date, check_out_date=checkout_date,user=user,room__room_name=roomname) ).exists()
+
+    # Check if each booking has a checkout date after today
+    
+
+    if bookings:
+           return JsonResponse({'message': "Cannot book the same room twice","status":2})
+
     bookings = Booking.objects.filter(
         Q(check_in_date__lt=checkout_date, check_out_date__gt=checkin_date,room__room_name=roomname) |
         Q(check_in_date__gte=checkin_date, check_out_date__lte=checkout_date,room__room_name=roomname) |
@@ -531,3 +586,85 @@ def BookAvailableRoom(request):
     # Return an error response if the request method is not POST
     return render(request, 'dashboard/book-room.html', {'room': room})
 
+def UserFeedback(request):
+    return render(request, 'dashboard/user-feedback.html')
+
+def Feedbacks(request):
+    
+    all_feedback = Feedback.objects.all()
+
+    # Pass the data to the template for rendering
+    return render(request, 'dashboard/feedbacks.html', {'all_feedback': all_feedback})
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Feedback
+import json
+
+@csrf_exempt
+def store_feedback_api(request):
+    if request.method == 'POST':
+        # Get the feedback data from the request
+        data = json.loads(request.body.decode('utf-8'))
+        feedback_text = data.get('feedback')
+
+        # Create a new Feedback object and save it to the database
+        feedback = Feedback.objects.create(user=request.user,feedback=feedback_text)
+
+        # Return a success response
+        return JsonResponse({'message': 'Feedback stored successfully'}, status=201)
+
+    # If the request method is not POST, return a 405 Method Not Allowed response
+    return JsonResponse({'error': 'Method Not Allowed'}, status=405)
+
+from datetime import date
+
+def Extend(request, id):
+    # Filter bookings based on the user and checkout date
+    bookings = Booking.objects.filter(user__id=id, check_out_date__gte=date.today())
+
+    # Create the context dictionary
+    context = {
+        'bookings': bookings,
+    }
+
+    # Render the extend.html template with the context
+    return render(request, 'dashboard/extend.html', context=context)
+
+def ExtendForm(request):
+    id=request.GET.get('id')
+    room=request.GET.get('room')
+    booking = get_object_or_404(Booking, id=id)
+    
+    # Pass the booking object to the template context
+    context = {
+        'booking': booking,
+    }
+
+    return render(request,'dashboard/extendform.html',context=context)
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .models import Booking
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from .models import Booking
+
+@require_GET
+def update_checkout_date(request):
+    # Get the booking ID and new checkout date from the URL parameters
+    booking_id = request.GET.get('booking_id')
+    new_checkout_date = request.GET.get('checkout_date')
+
+    
+        # Retrieve the booking object based on the booking ID
+    booking = Booking.objects.get(pk=booking_id)
+        # Update the checkout date
+    booking.check_out_date = new_checkout_date
+    print('hi')
+    # Save the changes
+    booking.save()
+    return JsonResponse({'message': 'Checkout date updated successfully'})
+  

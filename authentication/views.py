@@ -286,12 +286,33 @@ def askContact(request):
     return render(request, 'authentication/ask_contact.html')
 
 
-def Admin_Staff_Login(request):
-    return render(request, 'authentication/uelogin.html')
 
+def Staff_Login(request):
+    if request.user.is_authenticated:
+        logout(request)
 
+    context = {'username': ''}
 
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['pass1']
 
+        context = {'username': username}
+
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_staff or user.is_superuser:  # Check if user is staff or superuser (admin)
+                login(request, user)
+                if user.is_superuser:
+                    return redirect('admin-dashboard')  # Redirect to admin dashboard
+                else:
+                    return redirect('staff_dashboard')  # Redirect to staff dashboard
+            else:
+                messages.error(request, "You are not authorized to access this page.")
+        else:
+            messages.error(request, "Invalid username or password.")
+
+    return render(request, 'authentication/uelogin.html', context)
 
 
 

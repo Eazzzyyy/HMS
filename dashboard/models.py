@@ -14,3 +14,9 @@ class Booking(models.Model):
     # Add other fields as needed
     def __str__(self):
         return f"{self.room.room_name} - {self.user.username}"
+    
+
+class Feedback(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE) 
+    feedback=models.CharField(max_length=200)
+    date=models.DateField(default=timezone.now)

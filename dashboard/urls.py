@@ -1,7 +1,8 @@
 from django.urls import path
 
 from . import views
-
+from .views import store_feedback_api
+from .views import update_checkout_date
 
 urlpatterns = [ 
     
@@ -24,5 +25,12 @@ urlpatterns = [
     path('bookingstatus/<roomname>/', views.booking_list, name='booking-list'),
     path('staff-profile/', views.StaffProfile, name='staff-profile'),
     path('booking_list_filter/',views.booking_list_filter,name='filter_booking'),
-    path('book-available-room/',views.BookAvailableRoom, name='book-available-room')
+    path('book-available-room/',views.BookAvailableRoom, name='book-available-room'),
+    path('staff-book-room/', views.StaffBookRoom, name='staff-book-room'),
+    path('user-feedback/', views.UserFeedback, name='user-feedback'),
+    path('feedbacks/', views.Feedbacks, name='feedbacks'),
+    path('api/store-feedback/', store_feedback_api, name='store_feedback_api'),
+    path('view-extend/<id>/', views.Extend, name='extend'),
+    path('extend/',views.ExtendForm,name='extend_booking'),
+    path('update-checkout-date/', update_checkout_date, name='update_checkout_date'),
 ]

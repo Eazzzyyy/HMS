@@ -25,8 +25,20 @@
     <!----===== Iconscout CSS ===== -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
-    <title>Reviews and Ratings</title>
+    <title>Feedback</title>
+    <style>
+        .bordered-table {
+            border: 1px solid black;
+
+        }
+
+        .table-container {
+            margin-top: 20px;
+
+        }
+    </style>
 </head>
+
 
 <body>
     <nav>
@@ -41,22 +53,27 @@
         <div class="menu-items" style="margin-left: -30px;">
             <ul class="nav-links">
 
-                <li><a href="/admin-dashboard">
-                        <i class="uil uil-tachometer-fast-alt"></i>
-                        <span class="link-name">Dashboard</span>
+                <li><a href="/bookings">
+                        <i class="uil uil-calendar-alt"></i>
+                        <span class="link-name">Bookings</span>
                     </a></li>
 
-                <li><a href="/staffs">
-                        <i class="uil uil-users-alt"></i>
-                        <span class="link-name">Staffs</span>
+                <li><a href="/payment">
+                        <i class="uil uil-credit-card"></i>
+                        <span class="link-name">Payments</span>
                     </a></li>
-                <li><a href="/rooms">
-                        <i class="uil uil-bed"></i>
-                        <span class="link-name">Rooms</span>
+
+                <li><a href="/user-feedback">
+                        <i class="uil uil-credit-card" style="color: #0d6efd;"></i>
+                        <span class="link-name" style="color: #0d6efd;">Feedback</span>
                     </a></li>
-                <li><a href="/admin-reviews-ratings">
-                        <i class="uil uil-comments" style="color: #0d6efd;"></i>
-                        <span class="link-name" style="color: #0d6efd;">Reviews and Ratings</span>
+                <li><a href="/reviews-ratings">
+                        <i class="uil uil-comments"></i>
+                        <span class="link-name">Reviews and Ratings</span>
+                    </a></li>
+                <li><a href="/profile">
+                        <i class="uil uil-user-circle"></i>
+                        <span class="link-name">Profile</span>
                     </a></li>
             </ul>
 
@@ -86,14 +103,14 @@
                 <input type="text" placeholder="Search here...">
             </div> -->
 
-            <!--<img src="images/profile.jpg" alt="">-->
+
         </div>
 
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
-                    <i class="uil uil-comments"></i>
-                    <span class="text">Reviews and Ratings</span>
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="text">Feedback</span>
                 </div>
 
                 <!-- <div class="boxes">
@@ -112,18 +129,51 @@
                         <span class="text">Total Share</span>
                         <span class="number">10,120</span>
                     </div>
-                </div>
-            </div> -->
+                </div> -->
 
-                <div class="activity">
-
-
-
+                <div class="text-container">
+                    <textarea id="feedback-textarea"></textarea>
+                    <button id="submit-feedback-btn">Submit</button>
                 </div>
             </div>
+
+            <div class="activity">
+
+
+
+            </div>
+        </div>
     </section>
 
     <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>
+    <script>
+        document.getElementById('submit-feedback-btn').addEventListener('click', () => {
+            const feedbackText = document.getElementById('feedback-textarea').value;
+
+            // Make a POST request to the API endpoint
+            fetch('/api/store-feedback/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token if needed
+                },
+                body: JSON.stringify({ feedback: feedbackText })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Feedback submitted successfully');
+                        // Optionally, clear the textarea after submission
+                        document.getElementById('feedback-textarea').value = '';
+                    } else {
+                        alert('Failed to submit feedback');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting feedback');
+                });
+        });
+    </script>
 </body>
 
 </html>

@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,7 +18,38 @@
 
     <!---- Page CSS  -->
     <link rel="stylesheet" href="{% static 'authentication/styles/ask-forgot-reset.css' %}">
+    <style>
+        .messages {
+            position: absolute;
+            top: 5%;
 
+
+            animation: showAndHide 5s ease-in-out forwards;
+            z-index: 1;
+        }
+
+        @keyframes showAndHide {
+            0% {
+                opacity: 0;
+                transform: translateY(-25px);
+            }
+
+            30% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            70% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -27,13 +59,23 @@
                 <h3 id="forgot_password" class="fw-bold">The Urban Escape Hotel</h3>
                 <form action="" method="post">
                     {% csrf_token %}
+
+                    {% for message in messages %}
+                    <div class="messages" role="alert">
+                        <div class="alert alert-dismissible {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}"
+                            role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    {% endfor %}
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" name="username" id="username" value="" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" name="password" id="password" value="" class="form-control" required>
+                        <input type="password" name="pass1" id="pass1" value="" class="form-control" required>
                     </div>
                     <button id="login_button" type="submit" class="btn btn-primary">Login</button>
                 </form>

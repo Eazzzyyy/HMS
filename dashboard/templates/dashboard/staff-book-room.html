@@ -25,7 +25,18 @@
     <!----===== Iconscout CSS ===== -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
-    <title>Dashboard</title>
+    <title>Book Room</title>
+    <style>
+        .bordered-table {
+            border: 1px solid black;
+
+        }
+
+        .table-container {
+            margin-top: 20px;
+
+        }
+    </style>
 </head>
 
 <body>
@@ -41,25 +52,23 @@
         <div class="menu-items" style="margin-left: -30px;">
             <ul class="nav-links">
 
-                <li><a href="/admin-dashboard">
-                        <i class="uil uil-tachometer-fast-alt" style="color: #0d6efd;"></i>
-                        <span class="link-name" style="color: #0d6efd;">Dashboard</span>
+
+
+                <li><a href="/staff-dashboard">
+                        <i class="uil uil-calendar-alt"></i>
+                        <span class="link-name">Bookings</span>
                     </a></li>
 
-                <li><a href="/staffs">
-                        <i class="uil uil-users-alt"></i>
-                        <span class="link-name">Staffs</span>
+                <li><a href="/staff-book-room">
+                        <i class="uil uil-calendar-alt" style="color: #0d6efd;"></i>
+                        <span class="link-name" style="color: #0d6efd;">Book Room</span>
                     </a></li>
-                <li><a href="/rooms">
-                        <i class="uil uil-bed"></i>
-                        <span class="link-name">Rooms</span>
-                    </a></li>
-                <li><a href="/admin-reviews-ratings">
-                        <i class="uil uil-comments"></i>
-                        <span class="link-name">Reviews and Ratings</span>
+
+                <li><a href="/staff-profile">
+                        <i class="uil uil-user-circle"></i>
+                        <span class="link-name">Profile</span>
                     </a></li>
             </ul>
-
             <ul class="logout-mode">
                 <li><a href="/logout">
                         <i class="uil uil-signout"></i>
@@ -92,38 +101,26 @@
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
-                    <i class="uil uil-tachometer-fast-alt"></i>
-                    <span class="text">Dashboard</span>
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="text">Book Room</span>
                 </div>
 
-                <div class="boxes">
-                    <div class="box box1">
-                        <i class="uil uil-bed"></i>
-                        <span class="text">Rooms</span>
-                        <span class="number">1</span>
-                    </div>
-                    <div class="box box2">
-                        <i class="uil uil-users-alt"></i>
-                        <span class="text">Staffs</span>
-                        <span class="number">2</span>
-                    </div>
-                    <div class="box box3">
-                        <i class="uil uil-comments"></i>
-                        <span class="text">Reviews</span>
-                        <span class="number">10</span>
-                    </div>
+
+
+                <div class="activity">
+
+
+
                 </div>
             </div>
-
-            <div class="activity">
-
-
-
-            </div>
-        </div>
     </section>
 
     <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>
+    <script>
+
+
+    </script>
+
 </body>
 
 </html>

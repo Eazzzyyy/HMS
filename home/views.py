@@ -5,10 +5,12 @@ from .models import Room
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 
-
-
 def Homepage(request):
    rooms = Room.objects.all()
+   count={}
+   i=0
+   
+   
    return render(request,'home/homepage.html',{'rooms':rooms })
 
 

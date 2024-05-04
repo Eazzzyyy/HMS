@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Booking
+from .models import Booking,Feedback
 
 class BookingAdmin(admin.ModelAdmin):
    
@@ -19,3 +19,9 @@ class BookingAdmin(admin.ModelAdmin):
     user_last_name.short_description = 'Last Name'
 
 admin.site.register(Booking, BookingAdmin)
+
+
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ('user', 'feedback', 'date')
+  
+admin.site.register(Feedback, FeedbackAdmin)

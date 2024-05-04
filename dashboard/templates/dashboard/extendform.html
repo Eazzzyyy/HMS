@@ -1,0 +1,165 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <!----===== Iconscout CSS ===== -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+    <title>Feedbacks</title>
+    <style>
+        .bordered-table {
+            border: 1px solid black;
+        }
+
+        .table-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="extend">
+        <div class="dash-content">
+            <div class="overview">
+                <div class="title">
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="text">Extend</span>
+                </div>
+            </div>
+            <div class="table-container">
+                <!-- Form for extending booking -->
+                <form id="extendForm">
+                    {% csrf_token %}
+                    <!-- Display all booking details -->
+                    <p>User: {{ booking.user.username }}</p>
+                    <p>Room: {{ booking.room.room_name }}</p>
+                    <p id="check-in">{{ booking.check_in_date }}</p>
+                    <p id="check-out">{{ booking.check_out_date }}</p>
+
+                    <!-- Enable the new checkout date input field -->
+                    <label for="new_checkout_date">New Check-out Date:</label>
+                    <input type="date" id="new_checkout_date" name="new_checkout_date" required>
+                    <input type="date" id="checkInDateInput" name="check_in_date" hidden>
+                    <!-- Hidden input fields to pass id and room values -->
+                    <input type="hidden" id="id" name="id" value="{{ booking.id }}">
+                    <input type="hidden" id="room" name="room" value="{{ booking.room.room_name }}">
+
+                    <button type="button" id="extendButton">Extend</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+
+    <script>
+        var checkInDateString = document.getElementById('check-out').innerText;
+
+        // Convert the date string to a Date object
+        var checkInDate = new Date(checkInDateString);
+
+        // Format the date as YYYY-MM-DD for input type date
+        var formattedCheckInDate = formatDate(checkInDate);
+
+        // Set the formatted date as the value of the input field
+        document.getElementById('checkInDateInput').value = formattedCheckInDate;
+        document.getElementById('extendButton').addEventListener('click', function () {
+            // Increase the previous checkout date by 1 day and assign it to the check-in date
+            var checkoutDate = new Date(document.getElementById('new_checkout_date').value);
+            var checkin = new Date(document.getElementById('checkInDateInput').value);
+            var checkinDate = new Date(checkin);
+            checkinDate.setDate(checkinDate.getDate() + 1);
+
+            // Assign new checkout date value to the checkout date
+            var newCheckoutDate = document.getElementById('new_checkout_date').value;
+
+            // Update form fields with new values
+            document.getElementById('new_checkout_date').value = newCheckoutDate;
+            document.getElementById('checkInDateInput').value = formatDate(checkinDate);
+
+            // Prepare data for GET request
+            var roomName = encodeURIComponent(document.getElementById('room').value);
+            var checkInDate = encodeURIComponent(formatDate(checkinDate));
+            var checkOutDate = encodeURIComponent(newCheckoutDate);
+            var url = `/bookingstatus/${roomName}/?check_in_date=${checkInDate}&check_out_date=${checkOutDate}`;
+            console.log(checkInDate, checkOutDate);
+            // Make a GET request to the booking_list API
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Handle the response
+                    console.log(data.status);
+                    if (data.status == 0) {
+
+                        // Get the booking ID from the URL parameters
+                        var urlParams = new URLSearchParams(window.location.search);
+                        var bookingId = urlParams.get('id');
+
+                        // Construct the data payload
+                        var data = {
+                            'booking_id': bookingId,
+                            'checkout_date': checkOutDate
+                        };
+
+                        // Send the POST request using fetch API
+                        var url = `/update-checkout-date/?booking_id=${bookingId}&checkout_date=${checkOutDate}`;
+
+                        // Send the GET request using fetch API
+                        fetch(url, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    // Handle successful response
+                                    console.log('Checkout date updated successfully');
+                                    alert('Checkout date updated successfully');
+                                } else {
+                                    // Handle error response
+                                    console.error('Failed to update checkout date');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+
+                    }
+                    else {
+
+                        alert('Cannot extend room.Rooms are already allocated')
+                    }
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('Error:', error);
+                });
+        });
+
+        // Function to format date as YYYY-MM-DD
+        function formatDate(date) {
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var day = date.getDate();
+            return year + '-' + (month < 10 ? '0' : '') + month + '-' + (day < 10 ? '0' : '') + day;
+        }
+    </script>
+
+</body>
+
+</html>

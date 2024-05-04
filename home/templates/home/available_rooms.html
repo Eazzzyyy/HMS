@@ -1,3 +1,5 @@
+{% load custom_filters_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -94,26 +96,23 @@
                             <img src="{{ room.image.url }}" class="img-fluid rounded-start" alt="...">
                         </div>
                         <div class="col-md-7">
-                            <h5 class="mb-3">
-                                <b>{{ room.room_name }}</b>
-
+                            <h5 class="mb-3 d-flex align-items-center justify-content-between" style="width: 240px; ">
+                                <b>{{ room.room_name }} </b>
+                                <p id="{{ room.room_name }}"
+                                    style="font-weight: 400; font-size: 14px; margin-bottom: 0 ;">
+                                </p>
                             </h5>
 
                             <div class="features mb-4">
                                 <h6 class="mb-1">Features</h6>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    2 Rooms
-                                </span>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    2 Bathroom
-                                </span>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    1 Balcony
-                                </span>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    3 Sofa
-                                </span>
+                                <!-- Using the custom filter to split the features string -->
+                                {% for feature in room.features|split_features %}
+                                <span class="badge rounded-pill bg-light text-dark text-wrap">{{ feature }}</span>
+                                {% endfor %}
                             </div>
+
+
+
                             <div class="facilities mb-4">
                                 <h6 class="mb-1">Facilities</h6>
                                 <span class="badge rounded-pill bg-light text-dark text-wrap ">
@@ -186,7 +185,7 @@
                 document.getElementById('login_btn').style.display = 'none'
                 dashboardBtn.style.display = 'inline-block';
                 logoutBtn.style.display = 'inline-block';
-                document.getElementById('greetings').innerHTML = 'Hi ' + data.user + ' !'
+
             } else {
                 document.getElementById('login_btn').style.display = 'block'
                 dashboardBtn.style.display = 'none';
@@ -203,6 +202,7 @@
     var bookButtons = document.querySelectorAll('.bookBtn');
 
     // Loop through each 'bookBtn' element and attach an event listener
+
     bookButtons.forEach(function (button) {
         button.addEventListener('click', function (event) {
             event.preventDefault(); // prevent default link behavior
@@ -259,6 +259,89 @@
             window.location.href = newUrl
         });
     });
+
+    let url = window.location.href
+    // url += `&id=${id}`
+    // Split the URL to separate the base URL from the query parameters
+    let urlParts = url.split('?');
+
+    // Initialize an empty object to store the parameters and their values
+    let params = {};
+
+    // Check if there are query parameters in the URL
+    if (urlParts.length > 1) {
+        // Split the query parameters by '&'
+        let queryParams = urlParts[1].split('&');
+
+        // Loop through each query parameter
+        queryParams.forEach(param => {
+            // Split the parameter and its value by '='
+            let paramParts = param.split('=');
+
+            // Store the parameter and its value in the params object
+            // Use decodeURIComponent to handle special characters in the URL
+            params[paramParts[0]] = decodeURIComponent(paramParts[1]);
+        });
+    }
+
+    // Example usage: accessing the 'id' parameter
+    console.log("hyyy", params);
+    console.log("aee", params.id)
+
+    let newUrl = '/book/' + params.id + "/?";
+
+    // Loop through each key-value pair in the params object
+    for (let key in params) {
+        // Check if the params object has the property (key)
+        if (params.hasOwnProperty(key)) {
+            // Append the key-value pair to the new URL
+            // Use encodeURIComponent to handle special characters in the URL
+            newUrl += `${key}=${encodeURIComponent(params[key])}&`;
+        }
+    }
+
+    // Remove the trailing '&' from the new URL
+    newUrl = newUrl.slice(0, -1);
+
+    // Example usage: displaying the new URL with added query parameters
+    console.log("hello", newUrl);
+    // window.location.href = newUrl
+    // Define the URL string
+
+
+    // Function to extract key-value pairs after the check_in_date parameter
+    function extractParamsAfterCheckInDate(urlString) {
+        // Parse the URL to extract query parameters
+        let url = new URL(urlString);
+        let searchParams = url.searchParams;
+
+        // Find the index of the check_in_date parameter
+        let checkInDateIndex = searchParams.toString().indexOf('check_in_date');
+
+        // Extract the substring containing parameters after check_in_date
+        let paramsAfterCheckInDate = searchParams.toString().substring(checkInDateIndex);
+
+        // Convert the substring into an object
+        let paramsObject = Object.fromEntries(new URLSearchParams(paramsAfterCheckInDate));
+
+        return paramsObject;
+    }
+
+    // Extract key-value pairs after the check_in_date parameter
+    let extractedParams = extractParamsAfterCheckInDate(window.location.href);
+
+    // Output the extracted key-value pairs
+    console.log(extractedParams);
+    let j = 0;
+
+    for (let key in extractedParams) {
+        if (j == 0) {
+            j++;
+            continue;
+        }
+        document.getElementById(key).textContent = "   " + " (" + extractedParams[key] + " remaining)"
+    }
+
 </script>
 
 </html>
