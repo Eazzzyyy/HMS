@@ -9,7 +9,7 @@ urlpatterns = [
     path('staff-dashboard/',views.StaffDashboard, name='staff_dashboard'), 
     path('bookings/', views.UserBookings, name='user_bookings'),
     path('payment/', views.Payment, name='payment'),
-    path('reviews-ratings', views.ReviewRating, name='reviews_rating'),
+    path('reviews-ratings/<id>/', views.ReviewRating, name='reviews_rating'),
     path('profile/', views.Profile, name='profile'),
     path('admin-dashboard/', views.AdminDashboard, name='admin-dashboard'),
     path('staffs/', views.Staffs, name='staffs'),
@@ -24,6 +24,8 @@ urlpatterns = [
     path('book/<id>/', views.BookRoom, name='book-room'),
     path('bookingstatus/<roomname>/', views.booking_list, name='booking-list'),
     path('staff-profile/', views.StaffProfile, name='staff-profile'),
+    path('edit-booking/<id>/', views.EditBooking, name='edit-booking'),
+    path('delete-booking/<id>/', views.DeleteBooking, name='delete-booking'),
     path('booking_list_filter/',views.booking_list_filter,name='filter_booking'),
     path('book-available-room/',views.BookAvailableRoom, name='book-available-room'),
     path('staff-book-room/', views.StaffBookRoom, name='staff-book-room'),
@@ -33,4 +35,10 @@ urlpatterns = [
     path('view-extend/<id>/', views.Extend, name='extend'),
     path('extend/',views.ExtendForm,name='extend_booking'),
     path('update-checkout-date/', update_checkout_date, name='update_checkout_date'),
+    path('delete-feedback/<id>/', views.DeleteFeedback, name='delete-feedback'),
+    path('pay/', views.esewa, name='esewa'),
+    path('esewa/', views.payment_view),
+    path('payment-success/', views.payment_success),
+    path('total-staffdash/',views.total_staff_dash, name='total_staff_dash')
+  
 ]

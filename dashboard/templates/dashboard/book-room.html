@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,6 +11,12 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -32,6 +39,41 @@
 
         .navbar-nav {
             visibility: hidden;
+        }
+
+        .star-rating {
+            direction: rtl;
+            display: inline-block;
+            padding: 20px;
+        }
+
+        .star-rating input[type="radio"] {
+            display: none;
+        }
+
+        .star-rating label {
+            font-size: 30px;
+            color: #ccc;
+            padding: 0 10px;
+            cursor: pointer;
+        }
+
+        .star-rating input[type="radio"]:checked~label {
+            color: #f7d106;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover~label {
+            color: #f7d106;
+        }
+
+        .review-card {
+            margin-bottom: 20px;
+        }
+
+        .star-emojis {
+            font-size: 1.2em;
+            color: #f7d106;
         }
     </style>
 </head>
@@ -88,7 +130,29 @@
                     <img src="{{ room.image.url }}" class="d-block rounded" style="max-height: 500px; max-width: 100%;"
                         alt="room-img">
                 </div>
+                <br>
+                <br>
+                <div style="font-size: 20px; font-weight: bold;">Reviews</div>
+                <br>
+                {% for review in reviews %}
+                <div class="card review-card">
+                    <div class="card-body">
+                        <p class="card-title mb-2 text-muted">{{ review.user.username }}
+                            <p />
+                        <h6 class="card-subtitle mb-2 ">
+                            Rating:
+                            <span class="star-emojis">
+                                {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %} &#9733; {% else %} &#9734; {% endif %}
+                                    {%endfor %} </span>
+                        </h6>
+                        <p class="card-text">{{ review.review_message }}</p>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
+
+
 
 
 
@@ -100,16 +164,9 @@
 
 
                         <h4 class="fw-bold"> {{room.room_name}}</h4>
-                        <div class="mb-3">
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
 
-                        </div>
 
-                        <div class="features mb-3">
+                        <div class="features mb-3 mt-3">
                             <h6 class="mb-1">Features</h6>
 
 
@@ -151,6 +208,14 @@
 
 
                         <form>
+
+                            <div class="col-12">
+                                <h6 style="font-weight: bold;" id="price" class="mb-3 "></h6>
+                                <h6 id="room_price"
+                                    style="margin-top: -8px; position: absolute; width: 0; height: 0; overflow: hidden; font-weight: bold;">
+                                </h6>
+
+                            </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="checkin" class="form-label mb-1"
@@ -166,16 +231,27 @@
                                 </div>
                             </div>
 
+
+
                             <div class="col-12">
-                                <h6 id="book_warning" class="mb-3 text-danger">Select check-in & check-out date!</h6>
+                                <h6 id="book_warning" class="mb-3 text-danger">Select check-in & check-out date!
+                                </h6>
                             </div>
 
 
 
-                            <button id="bookBtn" class="btn btn-primary w-100 text-white shadow-none mb-2"
-                                data-room-name="{{ room.room_name }}">Book now</button>
 
+                            <div class="d-flex justify-content-between">
+                                <button id="payBtn" class="btn btn-primary me-2 flex-grow-1"
+                                    style="flex-basis: 60%;">Pay now</button>
+                                <button id="bookBtn" class="btn btn-secondary flex-grow-1" style="flex-basis: 40%;"
+                                    data-room-name="{{ room.room_name }}">Book</button>
+
+                            </div>
                         </form>
+                        <iframe id="paymentIframe"
+                            style="display: none; visibility: hidden;  border:none; overflow-x: hidden;"
+                            src="/esewa"></iframe>
                     </div>
 
                 </div>
@@ -213,7 +289,9 @@
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify({ room_id: roomId, checkin: document.getElementById("checkin").value, checkout: document.getElementById("checkout").value })
+                body: JSON.stringify({
+                    room_id: roomId, checkin: document.getElementById("checkin").value, checkout: document.getElementById("checkout").value, price: Number(document.getElementById("room_price").textContent)
+                })
             })
                 .then(response => {
                     if (response.ok) {
@@ -285,7 +363,7 @@
 
 
         // Function to fetch booking data from the Django endpoint
-        function fetchBookings(roomName) {
+        function fetchBookings(roomName, condition = 0) {
             console.log(roomName)
             const apiUrl = '/bookingstatus/' + roomName + '/' + '?check_in_date=' + document.getElementById('checkin').value + "&" + 'check_out_date=' + document.getElementById('checkout').value
             console.log(document.getElementById('checkin').value)
@@ -300,7 +378,31 @@
                     // Handle the JSON response data
                     console.log(data);
                     if (data.status == 0) {
-                        bookRoom()
+                        if (condition) {
+                            bookRoom()
+                            console.log('esewa')
+                            const iframe = document.getElementById('paymentIframe');
+
+                            // Ensure the iframe has loaded before trying to access its content
+
+                            // Access the iframe's document
+                            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                            const payElement = iframeDocument.getElementById('payElementId'); // Replace with actual element ID inside the iframe
+
+                            if (payElement) {
+                                payElement.click();
+                            } else {
+                                console.error('Pay element not found in the iframe.');
+                            }
+
+
+
+
+                        }
+                        else {
+                            bookRoom()
+                        }
+
                         document.getElementById("book_warning").textContent = ''
                     } else if (data.status == 2) {
                         // Select all elements with the specified class
@@ -337,6 +439,16 @@
 
             fetchBookings(roomName);
         });
+
+        const payBtn = document.getElementById('payBtn');
+        payBtn.addEventListener('click', function (e) {
+            e.preventDefault()
+            // Get the value of the data-room-name attribute
+            const roomName = bookBtn.getAttribute('data-room-name');
+
+
+            fetchBookings(roomName, 1);
+        });
         const dashboardBtn = document.getElementById('dashboard-btn');
         const logoutBtn = document.getElementById('logout-btn');
         fetch('/api/check-login/')
@@ -356,6 +468,88 @@
             .catch(error => {
                 console.error('Error:', error);
             });
+    </script>
+    <script>
+
+        const url = window.location.href;
+
+        // Get the room ID from the URL
+        let roomId = Number(url.split("/")[4]);
+
+        // Make a fetch request to get the price of the room
+        fetch(`/api/room/${roomId}/price/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error('Error fetching room price:', data.error);
+                } else {
+                    console.log('Room price:', data.price);
+                    document.getElementById('price').textContent = "NPR " + data.price
+
+
+                    const checkinInput = document.getElementById('checkin');
+                    const checkoutInput = document.getElementById('checkout');
+
+                    checkoutInput.addEventListener('change', function () {
+                        console.log('he');
+                        const checkinDate = new Date(checkinInput.value);
+                        const checkoutDate = new Date(checkoutInput.value);
+
+                        if (!checkinInput.value) {
+                            alert('Please select a check-in date first.');
+                            checkoutInput.value = '';
+                            return;
+                        }
+
+                        if (checkoutDate <= checkinDate) {
+                            alert('Check-out date must be after check-in date.');
+                            checkoutInput.value = '';
+                            return;
+                        }
+
+                        // Calculate the difference in days
+                        const timeDifference = checkoutDate - checkinDate;
+                        const dayDifference = timeDifference / (1000 * 3600 * 24);
+
+                        console.log(`Difference in days: ${dayDifference}`);
+                        document.getElementById('price').textContent = "NPR " + data.price * (dayDifference)
+                        localStorage.setItem('price', data.price * (dayDifference));
+                        document.getElementById('room_price').textContent = data.price * (dayDifference)
+                        localStorage.setItem('checkinDate', checkinDate);
+                        localStorage.setItem('checkoutDate', checkoutDate);
+                        const url = window.location.href;
+
+                        // Parse the query parameters from the URL
+                        const params = new URLSearchParams(url.split('?')[1]);
+
+                        // Get the value of the 'book' parameter
+                        const bookId = params.get('book');
+
+                        // Output the bookId to the console (you can use it as needed)
+                        console.log(bookId);
+                        // Get the room ID
+                        //  http://localhost:8000/book/40/?checkin=2024-04-11&checkout=2024-04-12
+                        console.log(url.split("/")[4])
+                        let roomId = Number(url.split("/")[4])
+                        localStorage.setItem('roomId', roomId);
+
+                    });
+
+
+
+                    // Use the price as needed in your application
+                }
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+
+
     </script>
 
     <!-- Bootstrap JS -->

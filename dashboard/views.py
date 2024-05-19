@@ -11,7 +11,8 @@ from home . models import Room
 from datetime import datetime
 from django.utils import timezone
 from django.db.models import Q
-from .utils import admin_required,user_required,staff_required
+from .utils import admin_required, send_booking_email, send_confirmation_email,user_required,staff_required
+from . models import Payment, Review
 
 
 @user_required
@@ -29,11 +30,40 @@ def UserBookings(request):
 
 @user_required
 def Payment(request):
-     return render(request, 'dashboard/payment.html')
+    bookings = Booking.objects.filter(user=request.user, payment_status="Paid")
+    
+    # Pass the bookings queryset to the template context
+    context = {
+        'bookings': bookings
+    }
+     
+     
+    return render(request, 'dashboard/payment.html',context)
 
 @user_required
-def ReviewRating(request):
-         return render(request, 'dashboard/reviews-rating.html')
+def ReviewRating(request,id):
+    if request.method == 'POST':
+        review_message = request.POST.get('review_message')
+        rating = request.POST.get('rating')
+        user = request.user
+        booking = get_object_or_404(Booking, id=id)
+
+        if review_message and rating:
+            # Check if the review already exists
+            review, created = Review.objects.update_or_create(
+                user=user,
+                booking=booking,
+                defaults={'review_message': review_message, 'rating': int(rating)}
+            )
+            if created:
+                return JsonResponse({'success': True, 'message': 'Your review has been submitted successfully!'})
+            else:
+                return JsonResponse({'success': True, 'message': 'Your review has been updated successfully!'})
+        
+        return JsonResponse({'success': False, 'message': 'Please fill in all fields.'})
+    
+       
+    return render(request, 'dashboard/reviews-rating.html')
 
 @staff_required
 def StaffProfile(request):
@@ -280,8 +310,24 @@ def DeleteStaff(request,id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
     
+@csrf_exempt  
+def DeleteFeedback(request,id):
+    
+   
+        feedback= Feedback.objects.get(id=id)
+        feedback.delete()
+        
+        return JsonResponse({'message': 'Feedback deleted successfully'}, status=200)
+    
+
+    
 def admin_reviews_ratings(request):
-    return render(request,'dashboard/admin-reviews-ratings.html')
+    reviews = Review.objects.all()
+    context={
+
+        'reviews': reviews
+    }
+    return render(request,'dashboard/admin-reviews-ratings.html',context)
 
 def Rooms(request):
     rooms = Room.objects.all()
@@ -352,12 +398,40 @@ def DeleteRoom(request,id):
     try:
         user = Room.objects.get(id=id)
         user.delete()
-        return JsonResponse({'message': 'User deleted successfully'}, status=200)
+        return JsonResponse({'message': 'Room deleted successfully'}, status=200)
     except CustomUser.DoesNotExist:
-        return JsonResponse({'error': 'User not found'}, status=404)
+        return JsonResponse({'error': 'Room not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
     
+
+@csrf_exempt  
+def DeleteBooking(request,id):
+    try:
+        user = Booking.objects.get(id=id)
+        user.delete()
+        return JsonResponse({'message': 'Room deleted successfully'}, status=200)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'error': 'Room not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+
+def EditBooking(request,id):
+    if request.method == 'POST':
+        id = request.POST.get('id')
+        status = request.POST.get("payment_status")
+        booking = Booking.objects.get(id=id)
+        booking.payment_status = status
+        booking.save()
+
+        return JsonResponse({'success': 'Payment status updated successfully'})
+
+    context = {
+        'booking': Booking.objects.get(id=id)
+    }
+    return render(request, 'dashboard/edit-booking.html', context)
 
 
 
@@ -373,7 +447,7 @@ def BookRoom(request, id):
         room_id = json_data.get('room_id')
         checkin_str = json_data.get('checkin')  # Assuming 'checkin' is a string in format YYYY-MM-DD
         checkout_str = json_data.get('checkout')  # Assuming 'checkout' is a string in format YYYY-MM-DD
-
+        price=json_data.get('price') 
 
         # Convert string dates to Python date objects
         checkin_date = datetime.strptime(checkin_str, '%Y-%m-%d').date()
@@ -393,18 +467,21 @@ def BookRoom(request, id):
                 room_id=int(room_id),
                 check_in_date=checkin_date,
                 check_out_date=checkout_date,
-                payment_status=False
+                payment_status="Pending",
+                price=price,
             )
         
         room.save()
+        send_booking_email(request.user.email)
             
             # Return a JSON response indicating success
         return JsonResponse({'message': 'Booking successful'})
         
        
-    
+    room = Room.objects.get(id=id)
+    reviews = Review.objects.filter(booking__room__id=id)
     # Return an error response if the request method is not POST
-    return render(request, 'dashboard/book-room.html', {'room': room})
+    return render(request, 'dashboard/book-room.html', {'room': room,'reviews':reviews})
 
 
 
@@ -573,7 +650,7 @@ def BookAvailableRoom(request):
             room_id=int(room_id),
             check_in_date=checkin_date,
             check_out_date=checkout_date,
-            payment_status=False
+            payment_status="Pending",
         )
 
     room.save()
@@ -667,4 +744,129 @@ def update_checkout_date(request):
     # Save the changes
     booking.save()
     return JsonResponse({'message': 'Checkout date updated successfully'})
-  
+
+
+import hashlib
+import hmac
+import base64
+
+def generate_signature(total_amount, transaction_uuid, product_code, secret):
+    # Concatenate the necessary fields
+    data = f"total_amount={total_amount},transaction_uuid={transaction_uuid},product_code={product_code}"
+    
+    # Calculate HMAC SHA256
+    hashed = hmac.new(secret.encode(), data.encode(), hashlib.sha256)
+    
+    # Encode to base64
+    signature = base64.b64encode(hashed.digest()).decode()
+    
+    return signature
+
+import uuid
+
+@csrf_exempt
+def payment_view(request):
+    if request.method == 'POST':
+        # Extract form data
+        total_amount = request.POST.get('total_amount')
+        transaction_uuid = str(uuid.uuid4())
+        product_code = request.POST.get('product_code')
+        secret = request.POST.get('secret')
+        print(transaction_uuid)
+       
+        # Generate signature
+        signature = generate_signature(total_amount, transaction_uuid, product_code, secret)
+
+        # Redirect to the eSewa URL with form data and signature
+        redirect_url = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form'
+        form_data = {
+            'amount': total_amount,
+            'tax_amount': '0',
+            'total_amount': total_amount,
+            'transaction_uuid': transaction_uuid,
+            'product_code': product_code,
+            'product_service_charge': '0',
+            'product_delivery_charge': '0',
+            'success_url': 'http://localhost:8000/payment-success/',
+            'failure_url': 'https://developer.esewa.com.np/failure',
+            'signed_field_names': 'total_amount,transaction_uuid,product_code',
+            'signature': signature,
+            'secret': secret
+        }
+        # if request.user.is_authenticated:
+            # Creating dummy payment data for the current user
+            # payment = Payment.objects.create(
+            #     user=request.user,
+            #     service='esewa',
+            #     payment_date=timezone.now(),
+            #     amount=total_amount, 
+            #     transaction_uuid=transaction_uuid, 
+            #     status=False
+            # )
+            # payment.save()
+        return render(request, 'dashboard/redirect_to_esewa.html', {'redirect_url': redirect_url, 'form_data': form_data})
+    return render(request,'dashboard/esewa.html')
+    
+
+
+def esewa(request):
+    # try:
+    #     payment=Payment.objects.get(user=request.user,status=True)
+    #     return render(request,'dashboard/pro_user.html')
+    # except Exception as e:
+        return render(request,'dashboard/pay.html')
+
+import base64
+import json
+def payment_success(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        checkin_date = data.get('checkin')
+        checkout_date = data.get('checkout')
+        roomId = data.get('roomId')
+        # Convert string dates to datetime objects
+        
+        checkin_date = datetime.strptime(checkin_date, '%Y-%m-%d').date()
+        checkout_date = datetime.strptime(checkout_date, '%Y-%m-%d').date()
+        
+           
+
+        # Filter bookings based on check-in and check-out dates
+        bookings = Booking.objects.filter(check_in_date=checkin_date, check_out_date=checkout_date,user=request.user,room__id=roomId).first()
+        print(bookings.check_in_date, bookings.check_out_date, bookings.room.id, request.user.username)
+        bookings.payment_status="Paid"
+      
+        bookings.save()
+        return render(request, 'dashboard/payment_success.html')
+    if request.method == 'GET':
+        encoded_string = request.GET.get('data')
+        decoded_bytes = base64.b64decode(encoded_string)
+        decoded_string = decoded_bytes.decode('utf-8')
+        transaction_data = json.loads(decoded_string)
+        print(transaction_data)
+
+        transaction_uuid = transaction_data['transaction_uuid']
+        amount = transaction_data['total_amount']
+        print("amount",amount)
+        send_confirmation_email(request.user.email,amount)
+     
+        
+          
+        return render(request, 'dashboard/payment_success.html')
+       
+ 
+def total_staff_dash(request):
+   
+    
+    total_users = CustomUser.objects.filter(is_staff=False, is_superuser=False).count()
+    total_pending = Booking.objects.filter(payment_status='Pending').count()
+    total_feedback = Feedback.objects.count()
+
+    data = {
+        'total_users': total_users,
+        'total_pending': total_pending,
+        'total_feedback': total_feedback,
+    }
+
+    return JsonResponse(data)
+   

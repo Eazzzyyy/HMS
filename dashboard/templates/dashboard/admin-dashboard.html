@@ -100,17 +100,17 @@
                     <div class="box box1">
                         <i class="uil uil-bed"></i>
                         <span class="text">Rooms</span>
-                        <span class="number">1</span>
+                        <span id="room_number" class="number">1</span>
                     </div>
                     <div class="box box2">
                         <i class="uil uil-users-alt"></i>
                         <span class="text">Staffs</span>
-                        <span class="number">2</span>
+                        <span id="total_staff" class="number">2</span>
                     </div>
                     <div class="box box3">
                         <i class="uil uil-comments"></i>
                         <span class="text">Reviews</span>
-                        <span class="number">10</span>
+                        <span id="total_reviews" class="number">10</span>
                     </div>
                 </div>
             </div>
@@ -122,6 +122,26 @@
             </div>
         </div>
     </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/total-max-rooms/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const totalMaxRooms = data.total_max_rooms;
+                    document.getElementById('room_number').textContent = totalMaxRooms;
+                    document.getElementById('total_staff').textContent = data.total_staff;
+                    document.getElementById('total_reviews').textContent = data.reviews;
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+        });
+    </script>
 
     <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>
 </body>

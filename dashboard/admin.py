@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Booking,Feedback
+from .models import Booking,Feedback, Review
 
 class BookingAdmin(admin.ModelAdmin):
    
@@ -25,3 +25,8 @@ class FeedbackAdmin(admin.ModelAdmin):
     list_display = ('user', 'feedback', 'date')
   
 admin.site.register(Feedback, FeedbackAdmin)
+
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('user', 'review_message','rating'
+    )
+admin.site.register(Review, ReviewAdmin)

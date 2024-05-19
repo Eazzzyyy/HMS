@@ -50,3 +50,43 @@ def staff_required(view_func):
         else:
             return redirect(reverse_lazy('uelogin'))  # Redirect to login
     return _wrapped_view
+
+
+
+from django.conf import settings
+from django.core.mail import send_mail
+
+
+
+def send_booking_email(email):
+
+    try:
+
+            subject = 'Room has been booked'
+            message = f'Please click on the link to check your status : http://127.0.0.1:8000/bookings'
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [email, ]
+            send_mail( subject, message, email_from, recipient_list )
+
+
+    except Exception as e:
+            return False
+
+    return True
+
+
+def send_confirmation_email(email,price):
+
+    try:
+
+            subject = 'Payment Successful'
+            message = f'Your payment of NPR {price} has been received. Please provide your review '
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [email, ]
+            send_mail( subject, message, email_from, recipient_list )
+
+
+    except Exception as e:
+            return False
+
+    return True

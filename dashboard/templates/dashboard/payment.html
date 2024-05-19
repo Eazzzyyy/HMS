@@ -24,6 +24,17 @@
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
     <title>Payments</title>
+    <style>
+        .bordered-table {
+            border: 1px solid black;
+
+        }
+
+        .table-container {
+            margin-top: 20px;
+
+        }
+    </style>
 </head>
 
 <body>
@@ -48,7 +59,12 @@
                         <i class="uil uil-credit-card" style="color: #0d6efd;"></i>
                         <span class="link-name" style="color: #0d6efd;">Payments</span>
                     </a></li>
-                <li><a href="/reviews-ratings">
+
+                <li><a href="/user-feedback">
+                        <i class="uil uil-clock"></i>
+                        <span class="link-name">Extension Request</span>
+                    </a></li>
+                <li style="display: none; visibility: hidden"><a href="/reviews-ratings">
                         <i class="uil uil-comments"></i>
                         <span class="link-name">Reviews and Ratings</span>
                     </a></li>
@@ -94,6 +110,35 @@
                     <span class="text">Payments</span>
                 </div>
 
+
+                <div class="table-container">
+
+                    <table class="table table-striped bordered-table">
+                        <thead>
+                            <tr>
+                                <th>Room Name</th>
+
+                                <th>Check-in Date</th>
+                                <th>Check-out Date</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr>
+                                <td>{{ booking.room.room_name }}</td>
+
+                                <td>{{ booking.check_in_date }}</td>
+                                <td>{{ booking.check_out_date }}</td>
+                                <td>{{ booking.price}}</td>
+                                <td> <a href="/reviews-ratings/ {{ booking.id }}">Leave Review</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
                 <!-- <div class="boxes">
                     <div class="box box1">
                         <i class="uil uil-thumbs-up"></i>

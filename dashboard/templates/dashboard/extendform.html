@@ -17,10 +17,15 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="{% static 'dashboard/styles/dashboard.css' %}">
+
+
+
     <!----===== Iconscout CSS ===== -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
-    <title>Feedbacks</title>
+    <title>Requests</title>
     <style>
         .bordered-table {
             border: 1px solid black;
@@ -29,16 +34,95 @@
         .table-container {
             margin-top: 20px;
         }
+
+        .form-control {
+            width: 400px;
+            margin-top: 5px;
+
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+
+        }
+
+        .field {
+            width: 400px;
+            padding-left: 10px;
+        }
+
+        .messages {
+            position: absolute;
+            top: 5%;
+            left: 30%;
+
+
+            animation: showAndHide 5s ease-in-out forwards;
+            z-index: 1000;
+        }
     </style>
 </head>
 
 <body>
-    <section class="extend">
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="{% static 'dashboard/images/logo.png' %}" alt="">
+            </div>
+
+            <span class="logo_name" style=>Urban Escape</span>
+        </div>
+
+        <div class="menu-items" style="margin-left: -30px;">
+            <ul class="nav-links">
+
+                <li><a href="/staff-dashboard">
+                        <i class="uil uil-calendar-alt"></i>
+                        <span class="link-name">Bookings</span>
+                    </a></li>
+
+                <li><a href="/feedbacks">
+                        <i class="uil uil-envelope" style="color: #0d6efd;"></i>
+                        <span class="link-name" style="color: #0d6efd;">Requests</span>
+                    </a></li>
+
+
+                <li><a href="/staff-profile">
+                        <i class="uil uil-user-circle"></i>
+                        <span class="link-name">Profile</span>
+                    </a></li>
+            </ul>
+            <ul class="logout-mode">
+                <li><a href="/logout">
+                        <i class="uil uil-signout"></i>
+                        <span class="link-name">Logout</span>
+                    </a></li>
+
+                <li class="mode">
+
+
+                    <div class="mode-toggle">
+
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle"></i>
+
+
+
+
+        </div>
+        <div id="alert_message"></div>
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
-                    <i class="uil uil-calendar-alt"></i>
-                    <span class="text">Extend</span>
+                    <i class="uil uil-envelope"></i>
+                    <span class="text">Requests > Bookings > Extend</span>
                 </div>
             </div>
             <div class="table-container">
@@ -46,20 +130,49 @@
                 <form id="extendForm">
                     {% csrf_token %}
                     <!-- Display all booking details -->
-                    <p>User: {{ booking.user.username }}</p>
-                    <p>Room: {{ booking.room.room_name }}</p>
-                    <p id="check-in">{{ booking.check_in_date }}</p>
-                    <p id="check-out">{{ booking.check_out_date }}</p>
+
+                    <label class="form-label">Username</label>
+
+                    <p class="field"
+                        style="border-radius: 4px; padding: 5px; border:1px solid rgb(233, 233, 233) ;padding-left:10px"
+                        id="check-in">{{ booking.user.username }}</p>
+
+
+
+                    <label class="form-label">Room</label>
+                    <p class="field"
+                        style="border-radius: 4px; padding: 5px; border:1px solid rgb(233, 233, 233) ;padding-left:10px"
+                        id="check-in">{{ booking.room.room_name }}</p>
+
+
+
+
+                    <label class="form-label">Check-in Date</label>
+                    <p class="field"
+                        style="border-radius: 4px; padding: 5px; border:1px solid rgb(233, 233, 233) ;padding-left:10px"
+                        id="check-in">{{booking.check_in_date }}</p>
+
+
+                    <label class="form-label">Check-out Date</label>
+                    <p class="field"
+                        style="border-radius: 4px; padding: 5px; border:1px solid rgb(233, 233, 233) ;padding-left:10px"
+                        id="check-out">{{ booking.check_out_date }}</p>
 
                     <!-- Enable the new checkout date input field -->
-                    <label for="new_checkout_date">New Check-out Date:</label>
-                    <input type="date" id="new_checkout_date" name="new_checkout_date" required>
+                    <div class="form-group">
+                        <label for="new_checkout_date">New Check-out Date</label>
+                        <input type="date" id="new_checkout_date" class="form-control" name="new_checkout_date"
+                            required>
+                    </div>
+
                     <input type="date" id="checkInDateInput" name="check_in_date" hidden>
+
+
                     <!-- Hidden input fields to pass id and room values -->
                     <input type="hidden" id="id" name="id" value="{{ booking.id }}">
                     <input type="hidden" id="room" name="room" value="{{ booking.room.room_name }}">
 
-                    <button type="button" id="extendButton">Extend</button>
+                    <button type="button" id="extendButton" class="btn btn-primary">Extend</button>
                 </form>
             </div>
         </div>
@@ -127,9 +240,18 @@
                         })
                             .then(response => {
                                 if (response.ok) {
-                                    // Handle successful response
-                                    console.log('Checkout date updated successfully');
-                                    alert('Checkout date updated successfully');
+
+                                    const successMessage = document.createElement('div');
+                                    successMessage.classList.add('messages', 'alert', 'alert-dismissible', 'alert-success');
+                                    successMessage.setAttribute('role', 'alert');
+                                    successMessage.innerHTML = `
+                    <div>
+                        ${'Checkout date updated successfully'}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                                    document.getElementById("alert_message").appendChild(successMessage);
+
                                 } else {
                                     // Handle error response
                                     console.error('Failed to update checkout date');
@@ -141,8 +263,17 @@
 
                     }
                     else {
+                        const errorMessage = document.createElement('div');
+                        errorMessage.classList.add('messages', 'alert', 'alert-dismissible', 'alert-danger');
+                        errorMessage.setAttribute('role', 'alert');
+                        errorMessage.innerHTML = `
+                    <div>
+                        ${'Cannot extend booking. The rooms are already allocated'}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                        document.getElementById("alert_message").appendChild(errorMessage);
 
-                        alert('Cannot extend room.Rooms are already allocated')
                     }
                 })
                 .catch(error => {

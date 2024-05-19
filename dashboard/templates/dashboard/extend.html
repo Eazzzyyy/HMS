@@ -19,11 +19,13 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="{% static 'dashboard/styles/dashboard.css' %}">
 
     <!----===== Iconscout CSS ===== -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
-    <title>Feedbacks</title>
+    <title>Requests</title>
     <style>
         .bordered-table {
             border: 1px solid black;
@@ -38,10 +40,59 @@
 </head>
 
 <body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="{% static 'dashboard/images/logo.png' %}" alt="">
+            </div>
+
+            <span class="logo_name" style=>Urban Escape</span>
+        </div>
+
+        <div class="menu-items" style="margin-left: -30px;">
+            <ul class="nav-links">
+
+                <li><a href="/staff-dashboard">
+                        <i class="uil uil-calendar-alt"></i>
+                        <span class="link-name">Bookings</span>
+                    </a></li>
+
+                <li><a href="/feedbacks">
+                        <i class="uil uil-envelope" style="color: #0d6efd;"></i>
+                        <span class="link-name" style="color: #0d6efd;">Requests</span>
+                    </a></li>
 
 
-    <section class="extend">
+                <li><a href="/staff-profile">
+                        <i class="uil uil-user-circle"></i>
+                        <span class="link-name">Profile</span>
+                    </a></li>
+            </ul>
+            <ul class="logout-mode">
+                <li><a href="/logout">
+                        <i class="uil uil-signout"></i>
+                        <span class="link-name">Logout</span>
+                    </a></li>
 
+                <li class="mode">
+
+
+                    <div class="mode-toggle">
+
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle"></i>
+
+
+
+
+        </div>
 
         <div class="dash-content">
             <div class="overview">
@@ -49,8 +100,8 @@
 
 
                 <div class="title">
-                    <i class="uil uil-calendar-alt"></i>
-                    <span class="text">Feedbacks</span>
+                    <i class="uil uil-envelope"></i>
+                    <span class="text">Requests > Bookings</span>
                 </div>
 
 
@@ -84,7 +135,7 @@
                             <td>{{ booking.payment_status }}</td>
                             <td>
                                 <a href="/extend/?id={{ booking.id }}&room={{ booking.room.room_name }}">
-                                    <button>Extend</button>
+                                    <button class="btn btn-primary">Extend</button>
                                 </a>
                             </td>
                         </tr>

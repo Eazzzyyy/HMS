@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
+
+from dashboard.models import Review
 from .models import Room
 from django.contrib.auth import logout
 from django.shortcuts import redirect
@@ -45,3 +47,25 @@ def room_available(request):
 
     # Render the template with the available rooms and room counts
     return render(request, 'home/available_rooms.html', {'available_rooms': available_rooms})
+
+from django.http import JsonResponse
+from django.db.models import Sum
+from .models import Room
+from authentication.models import CustomUser
+
+def total_max_rooms(request):
+    total_max = Room.objects.aggregate(total_max_rooms=Sum('max_room'))['total_max_rooms']
+    staff_members = CustomUser.objects.filter(is_staff=True,is_verified=True).values('id', 'username', 'email', 'contact_number')
+    reviews=Review.objects.count()
+    print(list(staff_members))
+    return JsonResponse({'total_max_rooms': total_max,'total_staff':len(list(staff_members)), 'reviews':reviews})
+
+from django.http import JsonResponse
+from .models import Room
+
+def get_room_price(request, room_id):
+    try:
+        room = Room.objects.get(id=room_id)
+        return JsonResponse({'price': room.price})
+    except Room.DoesNotExist:
+        return JsonResponse({'error': 'Room not found'}, status=404)

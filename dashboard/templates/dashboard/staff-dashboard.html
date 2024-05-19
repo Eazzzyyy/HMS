@@ -58,8 +58,8 @@
                     </a></li>
 
                 <li><a href="/feedbacks">
-                        <i class="uil uil-calendar-alt"></i>
-                        <span class="link-name">Feedbacks</span>
+                        <i class="uil uil-envelope"></i>
+                        <span class="link-name">Requests</span>
                     </a></li>
 
 
@@ -101,18 +101,18 @@
                 <div class="boxes" style="margin-top: 45px; margin-bottom: 50px;">
                     <div class="box box1">
                         <i class="uil uil-bed"></i>
-                        <span class="text">Rooms</span>
-                        <span class="number">1</span>
+                        <span class="text">Users</span>
+                        <span id="total_users" class="number">1</span>
                     </div>
                     <div class="box box2">
                         <i class="uil uil-users-alt"></i>
-                        <span class="text">Staffs</span>
-                        <span class="number">2</span>
+                        <span class="text">Pending Payments</span>
+                        <span id="total_pending" class="number">2</span>
                     </div>
                     <div class="box box3">
-                        <i class="uil uil-comments"></i>
-                        <span class="text">Reviews</span>
-                        <span class="number">10</span>
+                        <i class="uil uil-envelope"></i>
+                        <span class="text">Requests</span>
+                        <span id="total_requests" class="number">10</span>
                     </div>
                 </div>
             </div>
@@ -177,11 +177,12 @@
                             <th>Check-in Date</th>
                             <th>Check-out Date</th>
                             <th>Payment Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for booking in bookings %}
-                        <tr>
+                        <tr id="{{ booking.id }}">
                             <td>{{ booking.room.room_name }}</td>
                             <td>{{ booking.user.username }}</td>
                             <td>{{ booking.user.first_name }}</td>
@@ -190,6 +191,12 @@
                             <td>{{ booking.check_in_date }}</td>
                             <td>{{ booking.check_out_date }}</td>
                             <td>{{ booking.payment_status }}</td>
+                            <td>
+                                <a href="/edit-booking/ {{ booking.id }}">Edit</a> |
+                                <a style="color: rgb(0, 94, 255);text-decoration: underline;cursor: pointer;"
+                                    onclick='deletes("{{ booking.id }}")'>Delete</a>
+                            </td>
+                        </tr>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -206,6 +213,28 @@
         </div>
         </div>
     </section>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/total-staffdash/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+
+                    document.getElementById('total_users').textContent = data.total_users;
+                    document.getElementById('total_pending').textContent = data.total_pending;
+                    document.getElementById('total_requests').textContent = data.total_feedback;
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+        });
+    </script>
 
     <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>
     <script>
@@ -348,6 +377,35 @@
         document.getElementById('checkin').setAttribute('min', today);
         document.getElementById('checkout').setAttribute('min', today);
 
+    </script>
+
+    <script>
+        const deletes = (id) => {
+            fetch(`/delete-booking/${id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Add any additional headers if required
+                },
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); // Parse the JSON response
+                })
+                .then(data => {
+                    // Handle success response
+                    console.log(data.message); // Output success message to console
+                    document.getElementById(id).innerHTML = ""
+
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('There was a problem with the fetch operation:', error);
+
+                });
+        }
     </script>
 
 </body>

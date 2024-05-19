@@ -25,7 +25,7 @@
     <!----===== Iconscout CSS ===== -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
-    <title>Feedbacks</title>
+    <title>Requests</title>
     <style>
         .bordered-table {
             border: 1px solid black;
@@ -58,8 +58,8 @@
                     </a></li>
 
                 <li><a href="/feedbacks">
-                        <i class="uil uil-calendar-alt" style="color: #0d6efd;"></i>
-                        <span class="link-name" style="color: #0d6efd;">Feedbacks</span>
+                        <i class="uil uil-envelope" style="color: #0d6efd;"></i>
+                        <span class="link-name" style="color: #0d6efd;">Requests</span>
                     </a></li>
 
 
@@ -100,8 +100,8 @@
 
 
                 <div class="title">
-                    <i class="uil uil-calendar-alt"></i>
-                    <span class="text">Feedbacks</span>
+                    <i class="uil uil-envelope"></i>
+                    <span class="text">Requests</span>
                 </div>
                 <div class="table-container">
                     <table class="table table-striped bordered-table">
@@ -115,11 +115,14 @@
                         </thead>
                         <tbody>
                             {% for feedback in all_feedback %}
-                            <tr>
+                            <tr id="{{feedback.id}}">
                                 <td>{{ feedback.user }}</td>
                                 <td>{{ feedback.date }}</td>
                                 <td>{{ feedback.feedback }}</td>
-                                <td><a href="/view-extend/{{ feedback.user.id }}"><button>View</button></a></td>
+                                <td><a href="/view-extend/{{ feedback.user.id }}">View</a> |
+                                    <a style="color: rgb(0, 94, 255);text-decoration: underline;cursor: pointer;"
+                                        onclick='deletes("{{ feedback.id }}")'>Delete</a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -137,146 +140,36 @@
     </section>
 
     <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>
+
+
+
     <script>
-
-
-        // Get today's date in YYYY-MM-DD format
-        let today = new Date().toISOString().split('T')[0];
-
-        // Calculate tomorrow's date
-        let tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        let tomorrowFormatted = tomorrow.toISOString().split('T')[0];
-
-        // Construct the URL with today's date as check-in date and tomorrow's date as check-out date, and set adult and child values to 0
-        let url_to_request = `/booking_list_filter/?check_in_date=${today}&check_out_date=${tomorrowFormatted}&adult=1&child=0`;
-
-        // Output the constructed URL
-        console.log(url_to_request);
-
-        function getAvailableRooms(url_to_request) {
-            document.getElementById('available_r').style.display = 'none';
-            var checkinDate = new Date(document.getElementById('checkin').value);
-            var checkoutDate = new Date(document.getElementById('checkout').value);
-
-
-            // Check if check-in and check-out dates are equal
-            if (checkinDate.getTime() === checkoutDate.getTime()) {
-                // Dates are equal, show error message
-                document.getElementById('error_message').style.display = 'block'
-                document.getElementById('error_message').innerText = "Check-in and check-out dates cannot be the same.";
-                return; // Exit function
-            }
-
-            if (checkinDate >= checkoutDate) {
-                // Check-in date is not earlier than checkout date, show error message
-                document.getElementById('error_message').innerText = "Check-in date must be earlier than checkout date.";
-                return; // Exit function
-            }
-            fetch(url_to_request)
+        const deletes = (id) => {
+            fetch(`/delete-feedback/${id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Add any additional headers if required
+                },
+            })
                 .then(response => {
-                    // Check if response is successful (status code 200)
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
-                    // Parse response data as JSON
-                    return response.json();
+                    return response.json(); // Parse the JSON response
                 })
                 .then(data => {
-                    setTimeout(() => {
+                    // Handle success response
+                    console.log(data.message); // Output success message to console
+                    document.getElementById(id).innerHTML = ""
 
-                    }, 1000);
-                    document.getElementById('available_r').style.display = 'block';
-                    // Handle the data from the response
-                    console.log('Response data:', data);
-                    if (status == 0) {
-                        // Assuming `data` is your JavaScript variable containing the data
-                        const bookings = JSON.stringify(data.bookings); // Convert bookings object to a JSON string
-                        console.log(bookings)
-                        if (!bookings) {
-
-                            document.getElementById('error_message').style.display = 'block'
-                            document.getElementById('error_message').innerHTML = "Rooms are not available for the specified date"
-                            return
-                        }
-                        // Construct the URL with query parameters
-
-
-                        console.log(data.bookings)
-                        let roomCounts = data.bookings
-                        for (let roomType in roomCounts) {
-                            console.log(roomType + ": " + roomCounts[roomType]);
-
-                        }
-
-
-                        // Data in the available_bookings variable
-                        let available_bookings = data.bookings
-
-                        // Get the table body element
-                        let tableBody = document.getElementById('roomTableBody');
-                        tableBody.innerHTML = ''
-                        // Iterate over the available_bookings object
-                        for (let room in available_bookings) {
-                            if (available_bookings.hasOwnProperty(room)) {
-                                // Create a new row element
-                                let newRow = document.createElement('tr');
-
-                                // Create cell elements for room name and availability
-                                let roomCell = document.createElement('td');
-                                roomCell.textContent = room;
-
-                                let availabilityCell = document.createElement('td');
-                                availabilityCell.textContent = available_bookings[room];
-
-                                // Append cell elements to the row
-                                newRow.appendChild(roomCell);
-                                newRow.appendChild(availabilityCell);
-
-                                // Append the row to the table body
-                                tableBody.appendChild(newRow);
-                            }
-                        }
-                        if (!available_bookings) {
-                            tableBody.innerHTML = ''
-                            document.getElementById('error_message').style.display = 'block'
-                        }
-                        else {
-
-                            document.getElementById('error_message').style.display = 'none'
-                        }
-                        // return 0
-
-
-                        // Redirect to the constructed URL
-                        // window.location.href = url;
-                    } else {
-                        alert('No rooms available')
-                    }
-                    // You can perform further actions with the data here
                 })
                 .catch(error => {
-                    // Handle any errors that occur during the fetch operation
+                    // Handle errors
                     console.error('There was a problem with the fetch operation:', error);
+
                 });
-            // Disable past dates in the date input fields
         }
-
-        document.getElementById('viewRooms').addEventListener('click', (() => {
-            let checkin = document.getElementById('checkin').value
-            let checkout = document.getElementById('checkout').value
-            let url_to_request = `/booking_list_filter/?check_in_date=${checkin}&check_out_date=${checkout}&adult=1&child=0`;
-            document.getElementById('available_r').style.display = 'block';
-            getAvailableRooms(url_to_request);
-        }))
-
-
-    </script>
-    <script>
-        today = new Date().toISOString().split('T')[0];
-        document.getElementById('checkin').setAttribute('min', today);
-        document.getElementById('checkout').setAttribute('min', today);
-
     </script>
 
 </body>

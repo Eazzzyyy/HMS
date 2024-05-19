@@ -96,26 +96,28 @@
                     <span class="text">Reviews and Ratings</span>
                 </div>
 
-                <!-- <div class="boxes">
-                    <div class="box box1">
-                        <i class="uil uil-thumbs-up"></i>
-                        <span class="text">Total Likes</span>
-                        <span class="number">50,120</span>
-                    </div>
-                    <div class="box box2">
-                        <i class="uil uil-comments"></i>
-                        <span class="text">Comments</span>
-                        <span class="number">20,120</span>
-                    </div>
-                    <div class="box box3">
-                        <i class="uil uil-share"></i>
-                        <span class="text">Total Share</span>
-                        <span class="number">10,120</span>
-                    </div>
-                </div>
-            </div> -->
+                <div class="table-container">
+                    <table class="table table-striped bordered-table">
+                        <thead>
+                            <tr>
 
-                <div class="activity">
+                                <th>Username</th>
+                                <th>Reviews</th>
+                                <th>Rating</th> <!-- New column for edit and delete links -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for review in reviews %}
+
+
+                            <td>{{ review.user.username }}</td>
+                            <td>{{ review.review_message }}</td>
+                            <td>{{ review.rating }}</td>
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
 
 
 

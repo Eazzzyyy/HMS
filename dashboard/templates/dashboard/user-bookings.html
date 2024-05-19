@@ -62,7 +62,12 @@
                         <i class="uil uil-credit-card"></i>
                         <span class="link-name">Payments</span>
                     </a></li>
-                <li><a href="/reviews-ratings">
+
+                <li><a href="/user-feedback">
+                        <i class="uil uil-clock"></i>
+                        <span class="link-name">Extension Request</span>
+                    </a></li>
+                <li style="display: none; visibility: hidden"><a href="/reviews-ratings">
                         <i class="uil uil-comments"></i>
                         <span class="link-name">Reviews and Ratings</span>
                     </a></li>
@@ -136,6 +141,7 @@
                                 <th>Check-in Date</th>
                                 <th>Check-out Date</th>
                                 <th>Payment Status</th>
+                                <th>Price</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -146,6 +152,7 @@
                                 <td>{{ booking.check_in_date }}</td>
                                 <td>{{ booking.check_out_date }}</td>
                                 <td>{{ booking.payment_status }}</td>
+                                <td>{{ booking.price }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
