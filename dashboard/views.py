@@ -11,8 +11,19 @@ from home . models import Room
 from datetime import datetime
 from django.utils import timezone
 from django.db.models import Q
-from .utils import admin_required, send_booking_email, send_confirmation_email,user_required,staff_required
-from . models import Payment, Review
+from .utils import admin_required, send_booking_email, send_confirmation_email, send_extension_error,user_required,staff_required, send_extension
+from . models import  Review
+from threading import Thread
+from .models import Feedback
+from django.db.models import Sum
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+import base64
+import json
+import hashlib
+import hmac
+import base64
+
 
 
 @user_required
@@ -64,6 +75,10 @@ def ReviewRating(request,id):
     
        
     return render(request, 'dashboard/reviews-rating.html')
+
+
+
+
 
 @staff_required
 def StaffProfile(request):
@@ -164,8 +179,10 @@ def AdminDashboard(request):
 @staff_required
 def StaffDashboard(request):
     bookings = Booking.objects.all()
+    all_users = CustomUser.objects.filter(is_staff=False, is_superuser=False)
     context = {
             'bookings': bookings,
+            'all_users': all_users
         }
     return render(request, 'dashboard/staff-dashboard.html', context)
 
@@ -344,10 +361,12 @@ def CreateRoom(request):
         price = request.POST.get('price')
         image = request.FILES.get('image')
         features_string = request.POST.get('features-string')
+        adults=request.POST.get('adults')
+        children=request.POST.get('children')
         print(features_string)
 
         # Save Room object with extracted data
-        room = Room(room_name=room_name, availability=availability,price=price, image=image, features=features_string, slug='',max_room=availability)
+        room = Room(room_name=room_name, availability=availability,price=price, image=image, features=features_string,max_room=availability,number_of_adult=adults,number_of_children=children)
         room.save()
        
 
@@ -363,8 +382,12 @@ def EditRoom(request, id):
         room = Room.objects.get(id=id)
         room.room_name = request.POST.get('room_name')
         room.availability=request.POST.get('availability')
+        room.max_room=request.POST.get('availability')
         room.price = request.POST.get('price')
         room.features = request.POST.get('features-string')
+        room.number_of_adult=request.POST.get('adults')
+        room.number_of_children=request.POST.get('children')
+
         
         # Check if a new image was uploaded
         new_image = request.FILES.get('new_image')
@@ -435,53 +458,58 @@ def EditBooking(request,id):
 
 
 
-@user_required
+
+
+
+
+
+def send_booking_email_thread(email):
+    send_booking_email(email)
+
+
+
 def BookRoom(request, id):
-    # Retrieve the room object using the ID
     room = Room.objects.get(id=id)
     
-    if request.method == 'POST': 
+    if request.method == 'POST':
         json_data = json.loads(request.body)
 
-        # Retrieve room ID from the POST request
         room_id = json_data.get('room_id')
-        checkin_str = json_data.get('checkin')  # Assuming 'checkin' is a string in format YYYY-MM-DD
-        checkout_str = json_data.get('checkout')  # Assuming 'checkout' is a string in format YYYY-MM-DD
-        price=json_data.get('price') 
-
-        # Convert string dates to Python date objects
+        checkin_str = json_data.get('checkin')
+        checkout_str = json_data.get('checkout')
+        price = json_data.get('price')
+        book_status = json_data.get('book_status', 0)
         checkin_date = datetime.strptime(checkin_str, '%Y-%m-%d').date()
         checkout_date = datetime.strptime(checkout_str, '%Y-%m-%d').date()
 
         if not Booking.objects.filter(room_id=room_id, check_out_date__lte=checkin_date).exists():
             if Booking.objects.filter(room_id=room_id, check_out_date__gte=checkin_date).exists():
-                if Room.objects.filter(id=room_id,availability=0):
+                if Room.objects.filter(id=room_id, availability=0):
                     return JsonResponse({'message': 'Room already booked'})
-                    
-        
-     
-       
-            # Save the booking data to the Booking model
+
         booking = Booking.objects.create(
-                user=request.user,
-                room_id=int(room_id),
-                check_in_date=checkin_date,
-                check_out_date=checkout_date,
-                payment_status="Pending",
-                price=price,
-            )
-        
+            user=request.user,
+            room_id=int(room_id),
+            check_in_date=checkin_date,
+            check_out_date=checkout_date,
+            payment_status="Pending",
+            price=price,
+        )
+
         room.save()
-        send_booking_email(request.user.email)
-            
-            # Return a JSON response indicating success
-        return JsonResponse({'message': 'Booking successful'})
-        
-       
+
+        # Send JSON response immediately
+        response = JsonResponse({'message': 'Booking successful. You will receive a confirmation email shortly.'})
+
+        # Send the booking email in a separate thread
+        if not book_status:
+            Thread(target=send_booking_email_thread, args=(request.user.email,)).start()
+
+        return response
+
     room = Room.objects.get(id=id)
     reviews = Review.objects.filter(booking__room__id=id)
-    # Return an error response if the request method is not POST
-    return render(request, 'dashboard/book-room.html', {'room': room,'reviews':reviews})
+    return render(request, 'dashboard/book-room.html', {'room': room, 'reviews': reviews})
 
 
 
@@ -492,6 +520,9 @@ def booking_list(request, roomname):
     checkout_date=request.GET.get("check_out_date")
     checkin_date = timezone.datetime.strptime(checkin_date, '%Y-%m-%d').date()
     checkout_date = timezone.datetime.strptime(checkout_date, '%Y-%m-%d').date()
+
+    if checkin_date == checkout_date:
+        return JsonResponse({'message': 'Checkin date and Checkout date cannot be the same',"status":2})
 
     if checkout_date < checkin_date:
         
@@ -551,6 +582,15 @@ def booking_list(request, roomname):
     # Return JSON response
     return JsonResponse({'bookings': booking_data,"status":0})
 
+def send_extend_error(request):
+    booking_id = request.GET.get('booking_id')
+    
+
+    
+    
+    booking = Booking.objects.get(pk=booking_id)
+    send_extension_error(booking.user.email)
+
 
 
 
@@ -566,7 +606,7 @@ def booking_list_filter(request):
 
     checkin_date = timezone.datetime.strptime(checkin_date, '%Y-%m-%d').date()
     checkout_date = timezone.datetime.strptime(checkout_date, '%Y-%m-%d').date()
-
+    print(adult,child)
     if checkout_date < checkin_date:
         return JsonResponse({'message': 'Checkout date should be after the Checkin date',"status":2})
     
@@ -577,8 +617,10 @@ def booking_list_filter(request):
     )
     
     room_list=Room.objects.filter(
-        Q(number_of_adult__gte=adult) and Q(number_of_children__gte=child)
+        Q(number_of_adult__gte=adult) & Q(number_of_children__gte=child)
     )
+    for room in room_list:
+        print(room.room_name)
     
     latest_booking=0
     if bookings:
@@ -673,10 +715,7 @@ def Feedbacks(request):
     # Pass the data to the template for rendering
     return render(request, 'dashboard/feedbacks.html', {'all_feedback': all_feedback})
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Feedback
-import json
+
 
 @csrf_exempt
 def store_feedback_api(request):
@@ -720,14 +759,6 @@ def ExtendForm(request):
 
     return render(request,'dashboard/extendform.html',context=context)
 
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from .models import Booking
-
-
-from django.http import JsonResponse
-from django.views.decorators.http import require_GET
-from .models import Booking
 
 @require_GET
 def update_checkout_date(request):
@@ -740,15 +771,17 @@ def update_checkout_date(request):
     booking = Booking.objects.get(pk=booking_id)
         # Update the checkout date
     booking.check_out_date = new_checkout_date
+    booking.payment_status = "Partial"
+
+    send_extension(booking.user.email, new_checkout_date)
+
     print('hi')
     # Save the changes
     booking.save()
     return JsonResponse({'message': 'Checkout date updated successfully'})
 
 
-import hashlib
-import hmac
-import base64
+
 
 def generate_signature(total_amount, transaction_uuid, product_code, secret):
     # Concatenate the necessary fields
@@ -816,8 +849,7 @@ def esewa(request):
     # except Exception as e:
         return render(request,'dashboard/pay.html')
 
-import base64
-import json
+
 def payment_success(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -833,7 +865,7 @@ def payment_success(request):
 
         # Filter bookings based on check-in and check-out dates
         bookings = Booking.objects.filter(check_in_date=checkin_date, check_out_date=checkout_date,user=request.user,room__id=roomId).first()
-        print(bookings.check_in_date, bookings.check_out_date, bookings.room.id, request.user.username)
+        print(checkin_date,checkout_date,request.user.username,roomId)
         bookings.payment_status="Paid"
       
         bookings.save()
@@ -854,19 +886,42 @@ def payment_success(request):
           
         return render(request, 'dashboard/payment_success.html')
        
- 
+from django.core.serializers import serialize
 def total_staff_dash(request):
-   
-    
     total_users = CustomUser.objects.filter(is_staff=False, is_superuser=False).count()
+    all_users = CustomUser.objects.filter(is_staff=False, is_superuser=False)
     total_pending = Booking.objects.filter(payment_status='Pending').count()
     total_feedback = Feedback.objects.count()
+
+    # Serialize the QuerySet to JSON
+    all_users_serialized = json.loads(serialize('json', all_users))
 
     data = {
         'total_users': total_users,
         'total_pending': total_pending,
         'total_feedback': total_feedback,
+        'all_users': all_users_serialized
     }
 
     return JsonResponse(data)
+
+
+
+
+
+
+def toggle_review_display(request, review_id):
+    if request.method == 'POST':
+        review = get_object_or_404(Review, id=review_id)
+        review.display_on_website = not review.display_on_website
+        review.save()
+        return JsonResponse({'success': True, 'display_on_website': review.display_on_website})
+    return JsonResponse({'success': False})
+
    
+
+
+@require_GET
+def total_price_by_checkout_date(request):
+    data = Booking.objects.values('check_out_date').annotate(total_price=Sum('price')).order_by('check_out_date')
+    return JsonResponse(list(data), safe=False)

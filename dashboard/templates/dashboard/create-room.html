@@ -89,8 +89,8 @@
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
-                    <i class="uil uil-bed"></i>
-                    <span class="text">Create Room</span>
+
+                    <h2>Create Room</h2>
                 </div>
 
                 <form action="" method="post" enctype="multipart/form-data" id="room-form">
@@ -107,24 +107,38 @@
                     </div>
                     {% endfor %}
 
-                    <div class="form-group">
+                    <div class="form-group mb-3">
                         <label for="room_name" class="form-label">Room Name</label>
-                        <input type="text" name="room_name" id="room_name" class="form-control" required>
+                        <input type="text" name="room_name" id="room_name" class="form-control" style="width: 300px;"
+                            required>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group mb-3">
                         <label for="availability" class="form-label">Availability</label>
-                        <input type="number" name="availability" id="availability" class="form-control" required>
+                        <input type="number" name="availability" id="availability" class="form-control"
+                            style="width: 300px;"" required>
                     </div>
 
-                    <div class="form-group">
+                    <div class=" form-group mb-3">
                         <label for="price" class="form-label">Price</label>
-                        <input type="text" name="price" id="price" class="form-control" required>
+                        <input type="text" name="price" id="price" class="form-control" style="width: 300px;" required>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group mb-3">
+                        <label for="adults" class="form-label">Adults</label>
+                        <input type="number" name="adults" id="adults" class="form-control" style="width: 300px;"
+                            required>
+                    </div>
+
+                    <div class="form-group mb-3 ">
+                        <label for="children" class="form-label">Children</label>
+                        <input type="number" name="children" id="children" class="form-control" style="width: 300px;"
+                            required>
+                    </div>
+
+                    <div class="form-group mb-3">
                         <label for="image" class="form-label">Image</label>
-                        <input type="file" name="image" id="image" class="form-control" required>
+                        <input type="file" name="image" id="image" class="form-control" style="width: 300px;" required>
 
                     </div>
                     <br><br>

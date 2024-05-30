@@ -95,7 +95,7 @@
                 <tr>
                     <td>Failure URL:</td>
                     <td><input type="text" id="failure_url" name="failure_url"
-                            value="http://localhost:8000/payment-success/" class="form" required=""> </td>
+                            value="http://localhost:8000/payment-failure/" class="form" required=""> </td>
                 </tr>
 
                 <tr>
@@ -124,14 +124,14 @@
 
     <script>
 
-        const checkinDate = localStorage.getItem('checkinDate');
-        const checkoutDate = localStorage.getItem('checkoutDate');
-        const price = localStorage.getItem('price');
+        // const checkinDate = localStorage.getItem('checkinDate');
+        // const checkoutDate = localStorage.getItem('checkoutDate');
+        // const price = localStorage.getItem('price');
 
-        if (price) {
-            document.getElementById('amount').value = price;
-            document.getElementById('total_amount').value = price;
-        }
+        // if (price) {
+        //     document.getElementById('amount').value = price;
+        //     document.getElementById('total_amount').value = price;
+        // }
 
 
         // Function to auto-generate signature

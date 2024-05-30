@@ -1,4 +1,5 @@
 {% load custom_filters_tags %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -28,7 +29,7 @@
 
         .card {
             padding: 20px;
-            /* Adjust the padding as needed */
+
         }
 
         .card .row .col-md-5 img {
@@ -39,7 +40,23 @@
 
         .card .row .col-md-7 {
             padding-left: 15px;
-            /* Adjust as needed */
+
+        }
+
+
+        .rating-container {
+            display: flex;
+        }
+
+        .star-rating .star {
+            font-size: 24px;
+            color: gold;
+
+        }
+
+        .star-rating .star.filled {
+            color: gold;
+
         }
     </style>
 
@@ -113,31 +130,41 @@
 
 
 
-                            <div class="facilities mb-4">
-                                <h6 class="mb-1">Facilities</h6>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    Wifi
+                            <div class="Capacity mb-2">
+                                <h6 class="mb-1">Capacity</h6>
+                                <span class="badge rounded-pill bg-light text-dark text-wrap  me-1 mb-3">
+                                    {{ room.number_of_adult }} Adults
                                 </span>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    Television
+                                <span class="badge rounded-pill bg-light text-dark text-wrap  me-1 mb-3">
+                                    {{ room.number_of_children }} Children
                                 </span>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    AC
-                                </span>
+
+
                             </div>
+
+
+
 
                             <div class="rating mb-4">
-                                <h6 class="mb-1">Rating</h6>
-                                <span class="badge rounded-pill bg-light">
-                                    <i class="uis uis-star text-warning"></i>
-                                    <i class="uis uis-star text-warning"></i>
-                                    <i class="uis uis-star text-warning"></i>
-                                    <i class="uis uis-star text-warning"></i>
-                                    <i class="uis uis-star text-warning"></i>
-                                </span>
+                                <h6 class="mb-1">Ratings</h6>
+                                <div class="rating-container" data-rating="{{ room.average_rating }}">
+                                    <div class="star-rating">
+                                        <span class="star">&#9734;</span>
+                                        <span class="star">&#9734;</span>
+                                        <span class="star">&#9734;</span>
+                                        <span class="star">&#9734;</span>
+                                        <span class="star">&#9734;</span>
+                                        <span class="star" style="font-size: 0.8rem; margin-top: -30px;position: relative;
+                                            top: -3px; color:black;">({{room.review_count}})</span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="mb-4 ">
+
+
+
+
+                            <div class="mb-3 ">
                                 <h5 class="fw-bold">NPR {{ room.price }}</h5>
                             </div>
 
@@ -234,9 +261,7 @@
                 });
             }
 
-            // Example usage: accessing the 'id' parameter
-            console.log("hyyy", params);
-            console.log("aee", params.id)
+
 
             // New URL to which you want to add the query parameters
             let newUrl = '/book/' + params.id + "/?";
@@ -342,6 +367,21 @@
         document.getElementById(key).textContent = "   " + " (" + extractedParams[key] + " remaining)"
     }
 
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ratingContainers = document.querySelectorAll('.rating-container');
+
+        ratingContainers.forEach(container => {
+            const averageRating = parseFloat(container.getAttribute('data-rating'));
+            const stars = container.querySelectorAll('.star');
+
+            for (let i = 0; i < averageRating; i++) {
+                stars[i].classList.add('filled');
+                stars[i].innerHTML = "&#9733";
+            }
+        });
+    });
 </script>
 
 </html>

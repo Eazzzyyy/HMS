@@ -25,14 +25,46 @@
 
     <title>Payments</title>
     <style>
-        .bordered-table {
-            border: 1px solid black;
+        .table-container {
+            margin-top: 20px;
+            background-color: #f8f9fa;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            border-radius: 5px;
+            overflow: hidden;
 
         }
 
-        .table-container {
-            margin-top: 20px;
+        .table thead th {
+            background-color: #0d6efd;
+            color: white;
+            text-align: center;
+        }
 
+        .table tbody tr:nth-child(even) {
+            background-color: #e9ecef;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f3f5;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .table a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+
+        .table a:hover {
+            color: #0056b3;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -106,8 +138,8 @@
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
-                    <i class="uil uil-credit-card"></i>
-                    <span class="text">Payments</span>
+
+                    <h2>Payments</h2>
                 </div>
 
 

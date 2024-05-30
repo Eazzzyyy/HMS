@@ -274,6 +274,23 @@
                 `;
                         document.getElementById("alert_message").appendChild(errorMessage);
 
+                        var urlParams = new URLSearchParams(window.location.search);
+                        var bookingId = urlParams.get('id');
+                        fetch(`/extend_error/?booking_id=${bookingId}`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok ' + response.statusText);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log('Success:', data);
+                                // Handle the data received from the server
+                            })
+                            .catch(error => {
+                                console.error('There was a problem with your fetch operation:', error);
+                            });
+
                     }
                 })
                 .catch(error => {

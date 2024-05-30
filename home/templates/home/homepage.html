@@ -24,6 +24,31 @@
 
             }
         }
+
+
+        .star-rating {
+            display: inline-block;
+            font-size: 20px;
+            color: #f7d106;
+        }
+
+        .rating-number {
+            font-size: 20px;
+            margin-left: 10px;
+        }
+
+
+        .rating-container {
+            display: flex;
+            align-items: center;
+        }
+
+
+        .rating-number {
+            font-size: 13px;
+            /* Adjust font size here */
+
+        }
     </style>
 
     <!-- Bootstrap CSS -->
@@ -35,6 +60,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/solid.css">
+
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
 </head>
 
@@ -151,64 +178,67 @@
         </div>
     </div>
 
+
+
     <!-- Room cards -->
     <section id="rooms" style="padding-top: 30px;">
         <h2 class="mt-5 pt-4 mb-4 text-center fw-bold">Our Rooms</h2>
         <div class="container">
             <div class="row">
 
-                {% for room in rooms %}
-
+                {% for room_info in room_ratings %}
                 <div class="col-lg-4 col-md-6 my-3">
-
                     <div class="card border-0 shadow" style="max-width: 350px; margin: auto;">
-                        <img class="card-img-top" style="height:250px;object-fit: cover;" src="{{ room.image.url }}"
-                            alt="{{room.room_name}}">
+                        <img class="card-img-top" style="height:250px;object-fit: cover;"
+                            src="{{ room_info.room.image.url }}" alt="{{ room_info.room.room_name }}">
                         <div class="card-body">
-                            <h5>{{room.room_name}}</h5>
-                            <h6 class="mb-4"> <b>NPR {{room.price}} </b></h6>
-
+                            <h5>{{ room_info.room.room_name }}</h5>
+                            <h6 class="mb-4"><b>NPR {{ room_info.room.price }}</b></h6>
 
                             <div class="features mb-4">
                                 <h6 class="mb-1">Features</h6>
-                                <!-- Using the custom filter to split the features string -->
-                                {% for feature in room.features|split_features %}
+                                {% for feature in room_info.room.features|split_features %}
                                 <span class="badge rounded-pill bg-light text-dark text-wrap">{{ feature }}</span>
                                 {% endfor %}
                             </div>
 
-
-
-
-
-
-                            <div class="facilities mb-4">
-                                <h6 class="mb-1">Facilities</h6>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    Wifi
+                            <div class="Capacity mb-2">
+                                <h6 class="mb-1">Capacity</h6>
+                                <span class="badge rounded-pill bg-light text-dark text-wrap me-1 mb-3">
+                                    {{ room_info.number_of_adult }} Adults
                                 </span>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    Television
+                                <span class="badge rounded-pill bg-light text-dark text-wrap me-1 mb-3">
+                                    {{ room_info.number_of_children }} Children
                                 </span>
-                                <span class="badge rounded-pill bg-light text-dark text-wrap ">
-                                    AC
-                                </span>
-
                             </div>
 
-                            <div class="d-flex justify-start mb-2">
-                                <a href="{% url 'book-room' room.id %}"
-                                    class="btn btn-sm text-white btn-primary shadow-none"
-                                    style="margin-right: 10px;">Book Now</a>
-                            </div>
 
+                            <div class="rating mb-4">
+                                <h6 class="mb-1">Ratings</h6>
+                                <div class="rating-container">
+                                    <div class="star-rating">
+                                        {% for i in "12345" %}
+                                        {% if i <= room_info.average_rating|floatformat:"0" %} &#9733; {% else %}
+                                            &#9734; {% endif %} {% endfor %} </div>
+                                            <span class="rating-number">
+                                                ({{ room_info.review_count }})
+                                            </span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-start mb-2">
+                                    <a href="{% url 'book-room' room_info.room.id %}"
+                                        class="btn btn-sm text-white btn-primary shadow-none"
+                                        style="margin-right: 10px;">Book Now</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
-        </div>
     </section>
+
 
 
 
@@ -247,62 +277,25 @@
         </div>
     </section>
 
-    <!-- Reviews -->
+
+
+
     <section id="reviews" style="margin-top: 30px;">
         <h2 class="mt-5 pt-4 mb-4 text-center fw-bold">Reviews</h2>
-
         <div class="container mt-5">
-            <div class="swiper swiper-reviews ">
+            <div class="swiper swiper-reviews">
                 <div class="swiper-wrapper mb-5">
+                    {% for review in reviews %}
+                    {% if review.display_on_website %}
                     <div class="swiper-slide bg-white rounded shadow p-4 border border-lightgray">
                         <div class="profile d-flex align-items-center mb-3">
-                            <i class="uis uis-star text-warning " style="font-size: 30px;"></i>
-                            <h6 class="m-0 ms-2">User 1</h6>
+                            <i class="uil uil-comment" style="font-size: 30px;"></i>
+                            <h6 class="m-0 ms-2">{{ review.user.username }}</h6>
                         </div>
-                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur molestias, accusantium
-                            culpa aliquid eveniet obcaecati. Eaque molestiae fugiat eum eos?</p>
-                        <div class="rating">
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-
-                        </div>
+                        <p>{{ review.review_message }}</p>
                     </div>
-                    <div class="swiper-slide bg-white rounded shadow p-4 border border-lightgray">
-                        <div class="profile d-flex align-items-center mb-3">
-                            <i class="uis uis-star text-warning " style="font-size: 30px;"></i>
-                            <h6 class="m-0 ms-2">User 2</h6>
-                        </div>
-                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur molestias, accusantium
-                            culpa aliquid eveniet obcaecati. Eaque molestiae fugiat eum eos?</p>
-                        <div class="rating">
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-
-                        </div>
-                    </div>
-                    <div class="swiper-slide bg-white rounded shadow p-4 border border-lightgray">
-                        <div class="profile d-flex align-items-center mb-3">
-                            <i class="uis uis-star text-warning " style="font-size: 30px;"></i>
-                            <h6 class="m-0 ms-2">User 3</h6>
-                        </div>
-                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur molestias, accusantium
-                            culpa aliquid eveniet obcaecati. Eaque molestiae fugiat eum eos?</p>
-                        <div class="rating">
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-                            <i class="uis uis-star text-warning"></i>
-
-                        </div>
-                    </div>
-
+                    {% endif %}
+                    {% endfor %}
                 </div>
                 <div class="swiper-pagination"></div>
             </div>
@@ -484,6 +477,13 @@
             var checkoutDate = new Date(document.getElementById('checkout').value);
             var adultCount = parseInt(document.getElementById('adult').value);
             var childCount = parseInt(document.getElementById('child').value);
+            console.log(isNaN(checkinDate.getTime()), checkoutDate.getTime());
+            // Check if check-in and check-out dates are equal
+            if (isNaN(checkinDate.getTime()) || isNaN(checkoutDate.getTime())) {
+                // Dates are equal, show error message
+                document.getElementById('error_message').innerText = "Please fill the dates";
+                return; // Exit function
+            }
 
             // Check if check-in and check-out dates are equal
             if (checkinDate.getTime() === checkoutDate.getTime()) {
@@ -506,11 +506,16 @@
                 return; // Exit function
             }
 
-            if (adultCount === 0 && childCount >= 0) {
+
+
+
+
+            if (adultCount === 0) {
                 // Both counts are zero, show error message
                 document.getElementById('error_message').innerText = "Please select number of adult";
                 return; // Exit function
             }
+
 
             document.getElementById('error_message').style.display = 'none'
 

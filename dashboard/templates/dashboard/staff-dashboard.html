@@ -27,14 +27,46 @@
 
     <title>Bookings</title>
     <style>
-        .bordered-table {
-            border: 1px solid black;
+        .table-container {
+            margin-top: 20px;
+            background-color: #f8f9fa;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            border-radius: 5px;
+            overflow: hidden;
 
         }
 
-        .table-container {
-            margin-top: 20px;
+        .table thead th {
+            background-color: #0d6efd;
+            color: white;
+            text-align: center;
+        }
 
+        .table tbody tr:nth-child(even) {
+            background-color: #e9ecef;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f3f5;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .table a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+
+        .table a:hover {
+            color: #0056b3;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -100,12 +132,12 @@
 
                 <div class="boxes" style="margin-top: 45px; margin-bottom: 50px;">
                     <div class="box box1">
-                        <i class="uil uil-bed"></i>
+                        <i class="uil uil-users-alt"></i>
                         <span class="text">Users</span>
                         <span id="total_users" class="number">1</span>
                     </div>
                     <div class="box box2">
-                        <i class="uil uil-users-alt"></i>
+                        <i class="uil-money-bill"></i>
                         <span class="text">Pending Payments</span>
                         <span id="total_pending" class="number">2</span>
                     </div>
@@ -160,9 +192,50 @@
                 </table>
             </div>
 
+
+
             <div class="title">
-                <i class="uil uil-calendar-alt"></i>
-                <span class="text">Bookings</span>
+
+                <h2>Users</h2>
+            </div>
+
+
+            <div class="table-container">
+
+                <table class="table table-striped bordered-table">
+                    <thead>
+                        <tr>
+
+                            <th>Username</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Contact Number</th>
+                            <th>Email</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in all_users %}
+                        <tr id="{{ user.id }}">
+
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.first_name }}</td>
+                            <td>{{ user.last_name }}</td>
+                            <td>{{ user.contact_number }}</td>
+                            <td>{{ user.email }}</td>
+
+
+                        </tr>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="title">
+
+                <h2>Bookings</h2>
             </div>
             <div class="table-container">
 

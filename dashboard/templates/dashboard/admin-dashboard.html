@@ -25,6 +25,9 @@
     <!----===== Iconscout CSS ===== -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
     <title>Dashboard</title>
 </head>
 
@@ -81,19 +84,14 @@
         <div class="top">
             <i class="uil uil-bars sidebar-toggle"></i>
 
-            <!-- <div class="search-box">
-                <i class="uil uil-search"></i>
-                <input type="text" placeholder="Search here...">
-            </div> -->
 
-            <!--<img src="images/profile.jpg" alt="">-->
         </div>
 
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
-                    <i class="uil uil-tachometer-fast-alt"></i>
-                    <span class="text">Dashboard</span>
+
+                    <h2>Dashboard</span>
                 </div>
 
                 <div class="boxes">
@@ -112,6 +110,14 @@
                         <span class="text">Reviews</span>
                         <span id="total_reviews" class="number">10</span>
                     </div>
+                </div>
+
+                <div class="title">
+
+                    <h2>Revenue by days</span>
+                </div>
+                <div style="height: 500px; width: 1000px; display:block; margin: auto;">
+                    <canvas id="priceChart" width="400" height="200"></canvas>
                 </div>
             </div>
 
@@ -139,6 +145,34 @@
                 })
                 .catch(error => {
                     console.error('There has been a problem with your fetch operation:', error);
+                });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/api/total-price-by-checkout-date/')
+                .then(response => response.json())
+                .then(data => {
+                    const labels = data.map(item => item.check_out_date);
+                    console.log(labels);
+                    const prices = data.map(item => item.total_price);
+
+                    const ctx = document.getElementById('priceChart').getContext('2d');
+                    const priceChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Total Revenue',
+                                data: prices,
+                                borderColor: 'rgba(13, 110, 253, 1)',
+                                backgroundColor: 'rgba(13, 110, 253, 1)',
+                                fill: false,
+                            }]
+                        },
+
+                    });
                 });
         });
     </script>

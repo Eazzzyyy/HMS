@@ -134,8 +134,8 @@
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
-                    <i class="uil uil-tachometer-fast-alt"></i>
-                    <span class="text">Edit Room</span>
+
+                    <h2>Edit Room</h2>
                 </div>
 
                 <form action="" method="post" enctype="multipart/form-data" id="room-form">
@@ -169,12 +169,21 @@
                         <input type="text" name="price" id="price" class="form-control" value="{{room.price}}" required>
                     </div>
 
-                    <!-- <div class="form-group">
-                        <label for="image" class="form-label">Image</label>
-                        <input type="file" name="image" id="image" class="form-control" value="{{room.image.url}}"
-                            required>
 
-                    </div> -->
+                    <div class="form-group">
+                        <label for="adults" class="form-label">Adults</label>
+                        <input type="number" name="adults" id="adults" class="form-control"
+                            value="{{room.number_of_adult}}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="children" class="form-label">Children</label>
+                        <input type="number" name="children" id="children" class="form-control"
+                            value="{{room.number_of_children}}" required>
+                    </div>
+
+
+
                     <div class="form-group">
                         <label for="current_image" class="form-label">Current Image</label><br>
                         <img src="{{ room.image.url }}" alt="{{ room.room_name }}" style="max-width: 200px;">

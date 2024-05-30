@@ -1,7 +1,5 @@
 {% load static %}
-
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -13,19 +11,75 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
 
-
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
-    <!----======== CSS ======== -->
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'dashboard/styles/dashboard.css' %}">
 
-    <!----===== Iconscout CSS ===== -->
+    <!-- Iconscout CSS -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
     <title>Reviews and Ratings</title>
+
+    <style>
+        .table-container {
+            background-color: #f8f9fa;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background-color: #0d6efd;
+            color: white;
+            text-align: center;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #e9ecef;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f3f5;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .table a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+
+        .table a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
+        .form-check {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form-check-input {
+            margin: 0;
+            box-shadow: none;
+        }
+
+        .form-check-input:focus {
+            box-shadow: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -35,17 +89,15 @@
                 <img src="{% static 'dashboard/images/logo.png' %}" alt="">
             </div>
 
-            <span class="logo_name" style=>Urban Escape</span>
+            <span class="logo_name">Urban Escape</span>
         </div>
 
         <div class="menu-items" style="margin-left: -30px;">
             <ul class="nav-links">
-
                 <li><a href="/admin-dashboard">
                         <i class="uil uil-tachometer-fast-alt"></i>
                         <span class="link-name">Dashboard</span>
                     </a></li>
-
                 <li><a href="/staffs">
                         <i class="uil uil-users-alt"></i>
                         <span class="link-name">Staffs</span>
@@ -59,19 +111,13 @@
                         <span class="link-name" style="color: #0d6efd;">Reviews and Ratings</span>
                     </a></li>
             </ul>
-
             <ul class="logout-mode">
                 <li><a href="/logout">
                         <i class="uil uil-signout"></i>
                         <span class="link-name">Logout</span>
                     </a></li>
-
                 <li class="mode">
-
-
-                    <div class="mode-toggle">
-
-                    </div>
+                    <div class="mode-toggle"></div>
                 </li>
             </ul>
         </div>
@@ -80,52 +126,79 @@
     <section class="dashboard">
         <div class="top">
             <i class="uil uil-bars sidebar-toggle"></i>
-
-            <!-- <div class="search-box">
-                <i class="uil uil-search"></i>
-                <input type="text" placeholder="Search here...">
-            </div> -->
-
-            <!--<img src="images/profile.jpg" alt="">-->
         </div>
 
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
-                    <i class="uil uil-comments"></i>
-                    <span class="text">Reviews and Ratings</span>
+                    <h2>Reviews and Ratings</h2>
                 </div>
 
                 <div class="table-container">
                     <table class="table table-striped bordered-table">
                         <thead>
                             <tr>
-
                                 <th>Username</th>
                                 <th>Reviews</th>
-                                <th>Rating</th> <!-- New column for edit and delete links -->
+                                <th>Room</th>
+                                <th>Rating</th>
+                                <th>Display review on website</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for review in reviews %}
-
-
-                            <td>{{ review.user.username }}</td>
-                            <td>{{ review.review_message }}</td>
-                            <td>{{ review.rating }}</td>
-
+                            <tr id="{{ review.id }}">
+                                <td>{{ review.user.username }}</td>
+                                <td>{{ review.review_message }}</td>
+                                <td>{{ review.booking.room.room_name }}</td>
+                                <td>{{ review.rating }}</td>
+                                <td>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                            id="flexSwitchCheckDefault-{{ review.id }}" 
+                                            {% if review.display_on_website%} checked {% endif %}
+                                            data-review-id="{{ review.id }}">
+                                    </div>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
-
-
-
                 </div>
             </div>
     </section>
 
     <script src="{% static 'dashboard/scripts/dashboard.js' %}"></script>
+    <script>
+        document.querySelectorAll('.form-check-input').forEach(function (switchElement) {
+            switchElement.addEventListener('change', function () {
+                const reviewId = this.getAttribute('data-review-id');
+                const isChecked = this.checked;
+
+                fetch(`/toggle-review-display/${reviewId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        display_on_website: isChecked
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log(`Review ${reviewId} display_on_website set to ${data.display_on_website}`);
+                        } else {
+                            console.error(`Failed to toggle display_on_website for review ${reviewId}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
+        });
+    </script>
 </body>
 
 </html>

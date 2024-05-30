@@ -39,6 +39,8 @@ urlpatterns = [
     path('pay/', views.esewa, name='esewa'),
     path('esewa/', views.payment_view),
     path('payment-success/', views.payment_success),
-    path('total-staffdash/',views.total_staff_dash, name='total_staff_dash')
-  
+    path('total-staffdash/',views.total_staff_dash, name='total_staff_dash'),
+    path('toggle-review-display/<int:review_id>/', views.toggle_review_display, name='toggle-review-display'),
+    path('api/total-price-by-checkout-date/', views.total_price_by_checkout_date, name='total_price_by_checkout_date'),
+    path('extend_error/', views.send_extend_error,name='extend_error'),
 ]

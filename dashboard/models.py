@@ -37,7 +37,8 @@ class Review(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     review_message = models.TextField()
     rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
-    booking=models.ForeignKey(Booking, on_delete=models.CASCADE)
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    display_on_website = models.BooleanField(default=False)  # Add this field
 
     def __str__(self):
         return f"Review by {self.user.username} - Rating: {self.rating}"

@@ -63,7 +63,7 @@ def send_booking_email(email):
     try:
 
             subject = 'Room has been booked'
-            message = f'Please click on the link to check your status : http://127.0.0.1:8000/bookings'
+            message = f'Please click on the link to check your status : http://127.0.0.1:8000/bookings.'
             email_from = settings.EMAIL_HOST_USER
             recipient_list = [email, ]
             send_mail( subject, message, email_from, recipient_list )
@@ -80,7 +80,42 @@ def send_confirmation_email(email,price):
     try:
 
             subject = 'Payment Successful'
-            message = f'Your payment of NPR {price} has been received. Please provide your review '
+            message = f'Your payment  has been received. Please provide your review '
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [email, ]
+            send_mail( subject, message, email_from, recipient_list )
+
+
+    except Exception as e:
+            return False
+
+    return True
+
+
+
+def send_extension(email,new_date):
+
+    try:
+
+            subject = 'Booking extended'
+            message = f'Your booking is extended to {new_date}'
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [email, ]
+            send_mail( subject, message, email_from, recipient_list )
+
+
+    except Exception as e:
+            return False
+
+    return True
+
+
+def send_extension_error(email):
+
+    try:
+
+            subject = 'Booking extension failure'
+            message = f'Sorry, the booking cannot be exented because it is already allocated'
             email_from = settings.EMAIL_HOST_USER
             recipient_list = [email, ]
             send_mail( subject, message, email_from, recipient_list )

@@ -27,14 +27,6 @@
 
     <title>Edit Booking</title>
     <style>
-        .bordered-table {
-            border: 1px solid black;
-        }
-
-        .table-container {
-            margin-top: 20px;
-        }
-
         .form-control {
             width: 400px;
             margin-top: 5px;
@@ -121,8 +113,7 @@
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
-                    <i class="uil uil-calendar-alt"></i>
-                    <span class="text">Bookings > Edit Booking</span>
+                    <h2>Bookings > Edit Booking</h2>
                 </div>
 
                 {% for message in messages %}
@@ -135,7 +126,7 @@
                 </div>
                 {% endfor %}
             </div>
-            <div class="table-container">
+            <div class="table-container" style="margin-top: -30px;">
                 <form id="edit-booking-form" action="{% url 'edit-booking' booking.id %}" method="POST" novalidate>
                     <!-- Form for extending booking -->
                     <input value="{{ booking.id }}" name="booking_id" type="hidden">
@@ -171,14 +162,22 @@
                         id="check-out">{{ booking.check_out_date }}</p>
 
 
+
+
+
+
                     <label class="form-label">Payment Status</label>
                     <br>
+                    <select name="" id="payment_stat" class="field"
+                        style="border-radius: 4px; padding: 5px; border:1px solid rgb(233, 233, 233) ;padding-left:10px ; margin-top:-20px">
+                        <option value=" Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Partial">Partial</option>
+                    </select>
+
                     <input class="field"
-                        style="border-radius: 4px; padding: 5px; border:1px solid rgb(233, 233, 233) ;padding-left:10px"
+                        style="visibility: hidden;  border-radius: 4px; padding: 5px; border:1px solid rgb(233, 233, 233) ;padding-left:10px"
                         id="status" name="payment_status" value="{{ booking.payment_status }}">
-
-
-
                     <!-- Hidden input fields to pass id and room values -->
                     <input type="hidden" id="id" name="id" value="{{ booking.id }}">
                     <input type="hidden" id="room" name="room" value="{{ booking.room.room_name }}">
@@ -191,7 +190,13 @@
         </div>
     </section>
 
-
+    <script>
+        document.getElementById('payment_stat').value = "{{ booking.payment_status }}"
+        document.getElementById('payment_stat').addEventListener('change', ((e) => {
+            console.log(e.target.value)
+            document.getElementById('status').value = e.target.value
+        }))
+    </script>
     <script>
         document.getElementById('edit-booking-form').addEventListener('submit', async function (e) {
             e.preventDefault();
